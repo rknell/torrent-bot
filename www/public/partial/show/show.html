@@ -1,0 +1,31 @@
+<toolbar></toolbar>
+<tv-show-toolbar></tv-show-toolbar>
+<div ng-controller="ShowCtrl">
+    <div class="container">
+        <div class="row" >
+            <div class="col-lg-12">
+                <div class="description">{{show.description}}</div>
+                <div class="seasons" ng-show="!currentSeason">
+                    <div class="col-lg-3 col-sm-6" ng-repeat="season in show.seasons">
+                        <div class="poster-button" ng-click="setCurrent(season)">
+                            <h3>Season {{season.number}}</h3>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="episodes" ng-show="currentSeason">
+
+                    <div class="poster-button back-button" ng-click="setCurrent()">< Back</div>
+                    <div class="col-lg-4 col-sm-6" ng-repeat="episode in currentSeason.episodes">
+                        <div class="poster-button episode-button" ng-click="watch(episode)">Episode {{episode.number}} <span ng-show="episode.name"> - </span> {{episode.name}} - {{episode.quality}}</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

@@ -236,9 +236,15 @@ function space(x) {
  * Perform the entire round trip
  * @returns {Promise}
  */
+//function loadApi() {
+//  return loadModels()
+//    .then(loadRoutes)
+//    .then(actionRunLast);
+//}
+
 function loadApi() {
-  return loadModels()
-    .then(loadRoutes)
+  return loadRoutes()
+    .then(loadModels)
     .then(actionRunLast);
 }
 

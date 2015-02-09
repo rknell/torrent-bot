@@ -51,7 +51,11 @@ function listen(port, dontListen, production) {
 
   // Setup the path to the static files
   // ----------------------------------
-  app.use(express.static(path.join(__dirname, "..", "..", "www", "public")));
+  if(process.env.DEVELOPMENT) {
+    app.use(express.static(path.join(__dirname, "..", "..", "www", "public")));
+  } else {
+    app.use(express.static(path.join(__dirname, "..", "..", "www", "public", "dist")));
+  }
 
   // Fallover to a 404 if no other routes are matched
   // ------------------------------------------------
