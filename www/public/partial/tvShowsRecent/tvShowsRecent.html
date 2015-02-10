@@ -5,7 +5,7 @@
     <div class="poster col-lg-3"  ng-repeat="show in shows" ng-click="watch(show)">
         <img ng-src="{{show.posterUrl}}" class="img-responsive">
         <h3>{{show.name}}</h3>
-        <h5>S{{show.latestEpisode.season}}E{{show.latestEpisode.episode.number}} {{show.latestEpisode.episode.quality}}</h5>
+        <h5>S{{show.season}}E{{show.episode}} {{show.quality}}</h5>
     </div>
 
 </div>

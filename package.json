@@ -1,7 +1,6 @@
 {
   "name": "torrent-bot",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.2.2",
   "scripts": {
     "start": "node app.js",
     "test": "grunt test"

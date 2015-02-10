@@ -168,7 +168,9 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     episode: showData.episode,
     watched: false,
     dateAdded: Date(),
-    dateWatched: Date()
+    dateWatched: Date(),
+    quality: showData.quality,
+    magnetLink: showData.magnetLink
   })
   newShow.save(function(err, doc){
     console.log("Added " + showData.name + " to recents");
@@ -226,6 +228,7 @@ function addShowToDB(showData) {
       //Create a new entry
       tvdb.getSeries(showData.name)
         .then(function (tvdbdata) {
+          //if(!tvdbdata) tvdbdata = {}
           try{
             var newShow = new TVShow.model({
               name: showData.name,
@@ -259,12 +262,13 @@ function addShowToDB(showData) {
 
             })
           }catch(e){
-            console.log(e);
+
+            console.log(e, showData);
           }
 
         })
         .catch(function(err){
-          console.error(err);
+          console.error(err, showData);
         })
 
     }

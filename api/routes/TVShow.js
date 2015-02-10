@@ -20,14 +20,16 @@ function recent(req, res){
     .sort('-dateAdded')
     .limit(500)
     .exec(function(err, docs){
-      var output = [];
-        docs.forEach(function(item){
-
-          item.latestEpisode = latestEpisode(item);
-
-          output.push(item);
-        })
-      res.json(output);
+      console.log("Returning recent shows", docs);
+      res.json(docs);
+      //var output = [];
+      //  docs.forEach(function(item){
+      //
+      //    item.latestEpisode = latestEpisode(item);
+      //
+      //    output.push(item);
+      //  })
+      //res.json(output);
     })
 }
 

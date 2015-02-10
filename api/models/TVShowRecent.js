@@ -17,7 +17,9 @@ var schema = new mongoose.Schema({
   episode: Number,
   watched: Boolean,
   dateAdded: Date,
-  dateWatched: Date
+  dateWatched: Date,
+  quality: String,
+  magnetLink: String
 });
 
 module.exports = {
