@@ -146,9 +146,11 @@ function fetch(feed, cb) {
       if (cb) cb(output);
 
       async.eachSeries(output, function (item, cb) {
-        addShowToDB(item).then(function (result) {
+        addShowToDB(item)
+          .then(function (result) {
           cb();
         })
+          .catch(cb)
       }, function (err) {
         console.log("Finished adding shows");
       })
@@ -173,7 +175,12 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     magnetLink: showData.magnetUrl
   })
   newShow.save(function(err, doc){
-    console.log("Added " + showData.name + " to recents");
+    if(err){
+      console.error(showData, err)
+    } else{
+      console.log("Added " + showData.name + " to recents");
+    }
+
   })
 }
 
@@ -253,12 +260,7 @@ function addShowToDB(showData) {
             newShow.save(function (err, doc) {
               deferred.resolve(doc);
               addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-              try {
                 console.log("Added show", doc.name);
-              } catch (e) {
-                console.log(showData);
-                console.log(e);
-              }
 
             })
           }catch(e){

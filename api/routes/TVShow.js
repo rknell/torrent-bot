@@ -55,12 +55,28 @@ function latestEpisode(tvShow){
   }
 }
 
+function findAll(req, res, model) {
+  console.log('Final all executed')
+  TVShow.model
+    .find({})
+    .sort('name')
+    .exec(function (err, docs) {
+      res.json(docs);
+    })
+}
+
 module.exports = {
   routes: [
     {
       path: "recent",
       method: "get",
       fn: recent,
+      middleware: []
+    },
+    {
+      path: "",
+      method: "get",
+      fn: findAll,
       middleware: []
     }
   ]

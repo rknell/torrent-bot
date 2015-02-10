@@ -1,6 +1,6 @@
 {
   "name": "torrent-bot",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "scripts": {
     "start": "node app.js",
     "test": "grunt test"
@@ -93,5 +93,9 @@
   "bugs": {
     "url": "https://github.com/rknell/snappyapps-seed/issues"
   },
+  "bin": {
+    "torrent-bot": "app.js"
+  },
+  "preferGlobal": true,
   "homepage": "https://github.com/rknell/snappyapps-seed"
 }

@@ -14,7 +14,7 @@ var schema = new mongoose.Schema({
   posterUrl: String,
   backgroundUrl: String,
   season: Number,
-  episode: Number,
+  episode: String,
   watched: Boolean,
   dateAdded: Date,
   dateWatched: Date,
