@@ -12,7 +12,6 @@ function getSeries(seriesName) {
 
   //return deferred.promise;
 
-  console.log("Quering", "http://thetvdb.com/api/GetSeries.php?seriesname=" + seriesName)
   return parsereq("http://thetvdb.com/api/GetSeries.php?seriesname=" + seriesName)
 }
 
@@ -20,15 +19,12 @@ function parsereq(url) {
   var deferred = q.defer();
   request(url, function (error, response, body) {
     if (response.statusCode === 200) {
-      console.log("Body",body)
       jsonbody = parser.toJson(body, {object: true, sanitize: false});
-      console.log("Body parse result", jsonbody);
       if (jsonbody.Error) {
         error = jsonbody.Error;
         jsonbody = null;
       }
 
-      console.log("Body parse error", error);
       if(error) deferred.reject(error);
       else {
         if(jsonbody.Data.Series){

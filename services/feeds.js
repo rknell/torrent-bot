@@ -170,7 +170,7 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     dateAdded: Date(),
     dateWatched: Date(),
     quality: showData.quality,
-    magnetLink: showData.magnetLink
+    magnetLink: showData.magnetUrl
   })
   newShow.save(function(err, doc){
     console.log("Added " + showData.name + " to recents");
