@@ -4,9 +4,11 @@
 
 
 
-    <div class="poster col-lg-3"  ng-repeat="show in shows" ng-click="view(show)">
-        <img ng-src="{{show.posterUrl}}" class="img-responsive">
+    <div class="poster col-lg-3 col-md-4 col-sm-6"  ng-repeat="show in shows" ng-click="view(show)">
+        <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder>
         <h3>{{show.name}}</h3>
     </div>
+
+
 
 </div>

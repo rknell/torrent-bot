@@ -3,7 +3,7 @@
 <div class="col-md-12" ng-controller="TvshowsrecentCtrl">
 
     <div class="poster col-lg-3"  ng-repeat="show in shows" ng-click="watch(show)">
-        <img ng-src="{{show.posterUrl}}" class="img-responsive">
+        <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder>
         <h3>{{show.name}}</h3>
         <h5>S{{show.season}}E{{show.episode}} {{show.quality}}</h5>
     </div>

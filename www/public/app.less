@@ -2,6 +2,7 @@
 //@import "bower_components/bootstrap/less/theme.less";
 @import "bower_components/font-awesome/less/font-awesome.less";
 @fa-font-path: "bower_components/font-awesome/fonts";
+@import url(http://fonts.googleapis.com/css?family=Oswald:400,300,700);
 
 /* Component LESS */
 @import "partial/tvShows/tvShows.less";
@@ -15,33 +16,39 @@
 /* Required for Angular UI Bootstrap */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
-/* Personal preference for BS modal.  The LESS below makes the backdrop white and
-   causes the modal to fade in rather than slide in. */
-//@modal-backdrop-bg: white;
-//.modal {
-//	&.fade {
-//		.transition(opacity .3s);
-//	}
-//	&.fade .modal-dialog {
-//		.translate(0,0);
-//	}
-//}
-
-.poster h3 {
+.poster h3, .poster h5 {
     text-overflow: ellipsis !important;
     overflow: hidden !important;
     white-space: nowrap !important;
     text-align: center;
+    background: rgba(0, 0, 0, 0.64);
+    color: rgba(255, 255, 255, 0.82);
+    font-weight: 100;
+}
+
+.poster h3 {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.poster h5 {
+    margin-top: 0px;
 }
 
 .poster {
     text-align: center;
+    margin-bottom: 30px;
+}
+
+.poster img {
+    width: 100%;
 }
 
 html, body, .background {
     width: 100%;
     height: 100%;
     padding: 0;
+    font-family: 'Oswald', sans-serif;
 }
 
 .background {

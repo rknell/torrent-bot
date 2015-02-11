@@ -1,6 +1,6 @@
 {
   "name": "torrent-bot",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "scripts": {
     "start": "node app.js",
     "test": "grunt test"
@@ -71,31 +71,19 @@
     "karma-phantomjs-launcher": "~0.1.4",
     "load-grunt-tasks": "~0.2"
   },
-  "description": "--- *Build a rapid API by simply adding files. Uses Express and Mongoose.*",
+  "description": "Little internal project. Nothing to see here.",
   "main": "app.js",
   "directories": {
     "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rknell/snappyapps-seed.git"
+    "url": "https://rknell@bitbucket.org/rknell/torrent-bot.git"
   },
-  "keywords": [
-    "rest",
-    "api",
-    "mongoose",
-    "web",
-    "framework",
-    "express"
-  ],
-  "author": "Ryan Knell / SnappyApps",
+  "keywords": [],
   "license": "Apache 2.0",
-  "bugs": {
-    "url": "https://github.com/rknell/snappyapps-seed/issues"
-  },
   "bin": {
     "torrent-bot": "app.js"
   },
   "preferGlobal": true,
-  "homepage": "https://github.com/rknell/snappyapps-seed"
 }
