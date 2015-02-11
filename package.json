@@ -85,5 +85,5 @@
   "bin": {
     "torrent-bot": "app.js"
   },
-  "preferGlobal": true,
+  "preferGlobal": true
 }
