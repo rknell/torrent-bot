@@ -6,6 +6,7 @@
         <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder data-tvdbId="{{show.tvdbId}}" data-lastArt="1">
         <h3>{{show.name}}</h3>
         <h5>S{{show.season}}E{{show.episode}}</h5>
+        <img src="img/star.png" class="watched-star" ng-show="!show.watched">
     </div>
 
 </div>
