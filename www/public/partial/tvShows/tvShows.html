@@ -1,14 +1,8 @@
 <toolbar></toolbar>
 <tv-show-toolbar></tv-show-toolbar>
 <div ng-controller="TvshowsCtrl" class="padding-submenu">
-
-
-
     <div class="poster col-lg-2 col-md-3 col-sm-4"  ng-repeat="show in shows" ng-click="view(show)">
-        <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder data-tvdbId="{{show.tvdbId}}" data-lastArt="1">
+        <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder data-tvdbId="{{show.tvdbId}}">
         <h3>{{show.name}}</h3>
     </div>
-
-
-
 </div>
