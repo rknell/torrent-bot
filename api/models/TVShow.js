@@ -34,7 +34,8 @@ var schema = new mongoose.Schema({
       magnetLink: String,
       watched: {type: Boolean, default: false},
       dateAdded: Date,
-      dateWatched: Date
+      dateWatched: Date,
+      seeds: Number
     }]
   }]
 });

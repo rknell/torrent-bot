@@ -14,37 +14,29 @@ var torrentEngine = require('../../services/main');
 var TVShow = require('../models/TVShow');
 var TVShowRecent = require('../models/TVShowRecent');
 
-function recent(req, res){
+function recent(req, res) {
   TVShowRecent.model
     .find({})
     .sort('-dateAdded')
     .limit(500)
-    .exec(function(err, docs){
+    .exec(function (err, docs) {
       console.log("Returning recent shows", docs);
       res.json(docs);
-      //var output = [];
-      //  docs.forEach(function(item){
-      //
-      //    item.latestEpisode = latestEpisode(item);
-      //
-      //    output.push(item);
-      //  })
-      //res.json(output);
     })
 }
 
-function latestEpisode(tvShow){
+function latestEpisode(tvShow) {
   //get most recent season
   var highestSeason;
-  tvShow.seasons.forEach(function(season){
-    if(!highestSeason || season.number > highestSeason.number){
+  tvShow.seasons.forEach(function (season) {
+    if (!highestSeason || season.number > highestSeason.number) {
       highestSeason = season;
     }
   });
 
   var highestEpisode;
-  highestSeason.episodes.forEach(function(episode){
-    if(!highestEpisode || highestEpisode.datedAdded < episode.dateAdded){
+  highestSeason.episodes.forEach(function (episode) {
+    if (!highestEpisode || highestEpisode.datedAdded < episode.dateAdded) {
       highestEpisode = episode
     }
   });
@@ -55,14 +47,61 @@ function latestEpisode(tvShow){
   }
 }
 
-function findAll(req, res, model) {
-  console.log('Final all executed')
+function findAll(req, res) {
   TVShow.model
     .find({})
     .sort('name')
     .exec(function (err, docs) {
       res.json(docs);
     })
+}
+
+function markWatched(req, res) {
+
+  var name = req.body.name;
+  var seasonNumber = Number(req.body.season);
+  var episodeNumber = String(req.body.episode);
+
+  console.log("Marking watched", name, seasonNumber, episodeNumber);
+
+  TVShow.model
+    .find({name: name})
+    .exec(function (err, docs) {
+      if (docs.length) {
+        docs.forEach(function (show) {
+          show.seasons.forEach(function (season) {
+            if (season.number === seasonNumber) {
+              season.episodes.forEach(function (episode) {
+                if (episode.number === episodeNumber) {
+                  episode.watched = true;
+                }
+              })
+            }
+          });
+          show.save(function (err, doc) {
+            res.json(doc);
+            console.log("Saved", doc.name);
+          })
+        })
+      } else {
+        res.status(404).json({
+          message: "Could not find " + name,
+          name: name,
+          episode: episodeNumber,
+          season: seasonNumber
+        })
+      }
+
+
+    });
+
+  if (name && seasonNumber && episodeNumber) {
+    TVShowRecent.model
+      .update({name: name, season: seasonNumber, episode: episodeNumber}, {watched: true}, {}, function (err, doc) {
+        console.log("Updated recent episodes as watched", name, seasonNumber, episodeNumber);
+      })
+  }
+
 }
 
 module.exports = {
@@ -77,6 +116,12 @@ module.exports = {
       path: "",
       method: "get",
       fn: findAll,
+      middleware: []
+    },
+    {
+      path: "watched",
+      method: "post",
+      fn: markWatched,
       middleware: []
     }
   ]

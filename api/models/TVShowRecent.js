@@ -19,7 +19,9 @@ var schema = new mongoose.Schema({
   dateAdded: Date,
   dateWatched: Date,
   quality: String,
-  magnetLink: String
+  magnetLink: String,
+  seeds: String,
+  tvdbId: String
 });
 
 module.exports = {

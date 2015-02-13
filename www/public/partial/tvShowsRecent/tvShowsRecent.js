@@ -1,37 +1,13 @@
-angular.module('www').controller('TvshowsrecentCtrl',function($scope, $http, $state){
+angular.module('www').controller('TvshowsrecentCtrl', function ($scope, $http, $state, nowPlaying) {
 
     $http.get('/api/tvshow/recent')
-        .success(function(results){
-            //results.forEach(function(item){
-            //    item.latestEpisode = latestEpisode(item);
-            //})
+        .success(function (results) {
             $scope.shows = results;
             console.log("Loaded recent shows", results);
         });
 
-    //function latestEpisode(tvShow){
-    //    //get most recent season
-    //    var highestSeason;
-    //    tvShow.seasons.forEach(function(season){
-    //        if(!highestSeason || season.number > highestSeason.number){
-    //            highestSeason = season;
-    //        }
-    //    });
-    //
-    //    var highestEpisode;
-    //    highestSeason.episodes.forEach(function(episode){
-    //        if(!highestEpisode || highestEpisode.datedAdded < episode.dateAdded){
-    //            highestEpisode = episode
-    //        }
-    //    });
-    //
-    //    return {
-    //        season: highestSeason.number,
-    //        episode: highestEpisode
-    //    }
-    //}
-
-    $scope.watch = function(show){
-        $state.go('watchTorrent', {url: show.magnetLink})
-    }
+    $scope.watch = function (show) {
+        nowPlaying.startWatching(show.episode, show.season, show.name, show.magnetLink);
+        //$state.go('watchTorrent', {url: show.magnetLink})
+    };
 });

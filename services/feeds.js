@@ -172,7 +172,8 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     dateAdded: Date(),
     dateWatched: Date(),
     quality: showData.quality,
-    magnetLink: showData.magnetUrl
+    magnetLink: showData.magnetUrl,
+    tvdbId: showData.tvdbId
   })
   newShow.save(function(err, doc){
     if(err){

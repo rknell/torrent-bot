@@ -2,6 +2,7 @@ var torrentController = require('./torrent-controller');
 var clivas = require('clivas');
 var feeds = require('./feeds');
 var q = require('q');
+var tracker = require('./tracker');
 
 var engine;
 

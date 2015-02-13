@@ -1,4 +1,4 @@
-angular.module('www').controller('ShowCtrl',function($scope, $http, $stateParams, $rootScope, $state){
+angular.module('www').controller('ShowCtrl',function($scope, $http, $stateParams, $rootScope, $state, nowPlaying){
 
 
 
@@ -19,8 +19,8 @@ angular.module('www').controller('ShowCtrl',function($scope, $http, $stateParams
         $scope.currentSeason = season;
     }
 
-    $scope.watch = function(episode){
-        $state.go('watchTorrent', {url: episode.magnetLink})
+    $scope.watch = function(episode, show){
+        nowPlaying.startWatching(episode.number, $scope.currentSeason.number, $scope.show.name,episode.magnetLink);
     }
 
 });
