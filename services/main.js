@@ -3,6 +3,7 @@ var clivas = require('clivas');
 var feeds = require('./feeds');
 var q = require('q');
 var tracker = require('./tracker');
+var kickassTV = require('./kickassTV');
 
 var engine;
 
@@ -58,11 +59,14 @@ function play(uri){
  * Refresh all feeds
  */
 function refreshAll(){
-  feeds.showRss();
+  //feeds.showRss();
+  //feeds.kickass();
 }
 
-setInterval(refreshAll, 1000 * 60 * 5);
+setInterval(refreshAll, 1000 * 30);
 refreshAll();
+kickassTV.processShows();
+setInterval(kickassTV.processShows, 1000 * 60 * 20);
 
 module.exports = {
   engine: engine,

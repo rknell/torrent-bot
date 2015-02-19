@@ -6,6 +6,8 @@ var async = require('async');
 var q = require('q');
 var tvdb = require('./tvdb');
 
+var tracker = require('./tracker');
+
 //tvdb.getSeries('Helix').then(function(result){
 //  console.log(JSON.stringify(result, null, 2));
 //})
@@ -14,11 +16,9 @@ function showRss(cb) {
   fetch("http://showrss.info/feeds/all.rss", cb);
 }
 
-
-module.exports = {
-  showRss: showRss
-};
-
+function kickass(cb) {
+  fetch('http://kickass.to/tv/?rss=1', cb);
+}
 
 function fetch(feed, cb) {
   // Define our streams
@@ -86,78 +86,149 @@ function fetch(feed, cb) {
   function done(err, data) {
     if (err) {
       console.error(err, err.stack);
-      if(cb)  cb(err);
     } else {
 
       var output = [];
 
       //Parse the show information for each item
-      data.forEach(function (item) {
-
-        var qualityRegex = /720p|1080p/gi;
-        var quality = qualityRegex.exec(item.title);
-
-        if (!quality || !quality.length) {
-          quality = "SD";
-        } else {
-          quality = quality[0];
-        }
-
-        //Try seasonXepisode format
-        var regExp = /^(.*?)([0-9]{1,})x([0-9]{1,})(.*)/gi;
-        var result = regExp.exec(item.title);
-        if (result) {
-          if (!result[4]) result[4] = "";
-          var showData = {
-            name: result[1].trim(),
-            season: Number(result[2]),
-            episode: Number(result[3]),
-            episodeName: result[4].trim(),
-            quality: quality,
-            magnetUrl: item.link,
-            originalName: item.title
-          };
-          output.push(showData);
-        }
-
-
-        //Try date episode format (late shows)
-        var regExp = /^(.*?)([0-9]{4})\-([0-9]{2}\-[0-9]{2})(.*|)(720p|1080p|)/gi;
-        var result = regExp.exec(item.title);
-        if (result) {
-          var showData = {
-            name: result[1].trim(),
-            season: Number(result[2]),
-            episode: result[3].trim(),
-            episodeName: result[4].trim(),
-            quality: quality,
-            magnetUrl: item.link,
-            originalName: item.title
-          };
-
-          if (showData.episodeName == "720p" || showData.episodeName == "1080p") {
-            showData.quality = showData.episodeName;
-            showData.episodeName = null;
-          }
-          output.push(showData);
+      data.forEach(function(item){
+        var parsed = parseShowData(item);
+        if(parsed) {
+          output.push(parsed);
         }
       });
-
-      if (cb) cb(output);
 
       async.eachSeries(output, function (item, cb) {
         addShowToDB(item)
           .then(function (result) {
-          cb();
-        })
+            cb();
+          })
           .catch(cb)
       }, function (err) {
-        console.log("Finished adding shows");
+        //console.log("Finished adding shows");
       })
-
-
     }
   }
+}
+
+function addSingleShow(title, magnetLink){
+
+  var deferred = q.defer();
+
+  var data = parseShowData({title: title, magnetUri: magnetLink});
+  if(data){
+    addShowToDB(data)
+      .then(function(){
+        var a = 0;
+        deferred.resolve();
+      })
+      .catch(deferred.reject);
+  } else {
+    deferred.reject();
+  }
+
+  return deferred.promise;
+
+}
+
+function parseShowData(item) {
+
+
+
+  var blackListRegex = /Spanish|\[ITA\]|Lektor Pl|ITTV|Subtitulado|flemish/i;
+  var isBlacklisted = blackListRegex.exec(item.title);
+  var showData;
+
+  if (!isBlacklisted) {
+    var qualityRegex = /720p|1080p/i;
+
+
+    var quality = qualityRegex.exec(item.title);
+
+    if (!quality || !quality.length) {
+      quality = "SD";
+    } else {
+      quality = quality[0];
+    }
+
+    var magnetUri;
+    if (item['torrent:magneturi']) {
+      magnetUri = item['torrent:magneturi']['#']
+    } else if (item['rss:link']) {
+      magnetUri = item['rss:link']['#']
+    } else if (item.magnetUri) {
+      magnetUri = item.magnetUri
+    }
+
+    //tracker.getSeeders(magnetUri)
+    //  .then(function (result) {
+    //    if (result > 0) {
+    //Try seasonXepisode format
+    var regExp = /^(.*?)([0-9]{1,})x([0-9]{1,})(.*)/i;
+    var result = regExp.exec(item.title);
+
+    if (result) {
+      if (!result[4]) result[4] = "";
+      showData = {
+        name: result[1].trim(),
+        season: Number(result[2]),
+        episode: Number(result[3]),
+        episodeName: result[4].trim(),
+        quality: quality,
+        magnetUrl: magnetUri,
+        originalName: item.title
+      };
+    }
+
+    //Try SxxExx format
+    var regExp = /^(.*?)S([0-9]{1,})E([0-9]{1,})/i;
+    var result = regExp.exec(item.title);
+    if (result) {
+      showData = {
+        name: result[1].trim(),
+        season: Number(result[2]),
+        episode: Number(result[3]),
+        quality: quality,
+        magnetUrl: magnetUri,
+        originalName: item.title
+      };
+    }
+
+
+    //Try date episode format (late shows)
+    var regExp = /^(.*?)([0-9]{4})\-([0-9]{2}\-[0-9]{2})(.*|)(720p|1080p|)/i;
+    var result = regExp.exec(item.title);
+    if (result) {
+      showData = {
+        name: result[1].trim(),
+        season: Number(result[2]),
+        episode: result[3].trim(),
+        episodeName: result[4].trim(),
+        quality: quality,
+        magnetUrl: magnetUri,
+        originalName: item.title
+      };
+
+      if (showData.episodeName == "720p" || showData.episodeName == "1080p") {
+        showData.quality = showData.episodeName;
+        showData.episodeName = null;
+      }
+
+    }
+
+    if(showData && showData.name){
+      showData.name = cleanName(showData.name);
+    }
+
+    return showData;
+
+  }
+}
+
+function cleanName(name){
+  name.replace(/\./g, " ");
+  name.trim();
+  return name;
 }
 
 function addShowToRecents(showData, posterUrl, backgroundUrl){
@@ -179,103 +250,162 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     if(err){
       console.error(showData, err)
     } else{
-      console.log("Added " + showData.name + " to recents");
     }
 
   })
 }
 
+function isBetter(current, newItem) {
+  var deferred = q.defer();
+  var currentResult, newResult;
+  tracker.getSeeders(current)
+    .then(function (current) {
+      currentResult = current;
+      return tracker.getSeeders(newItem);
+    })
+    .then(function (newItem) {
+      if (currentResult < newItem) {
+        deferred.resolve(true);
+      } else {
+        deferred.resolve(false);
+      }
+    });
+
+  return deferred.promise;
+}
+
 
 function addShowToDB(showData) {
   var deferred = q.defer();
-  TVShow.model.findOne({name: showData.name}).exec(function (err, doc) {
-    if (doc) {
-      //Update doc
-      var foundSeason = false;
-      doc.seasons.forEach(function (season) {
-        if (season.number == showData.season) {
-          foundSeason = true;
-          var foundEpisode = false;
-          season.episodes.forEach(function (episode) {
-            if (episode.number == showData.episode && episode.quality == showData.quality) {
-              foundEpisode = true;
-            }
-          });
-          if (!foundEpisode) {
-            season.episodes.push({
-              number: showData.episode,
-              name: showData.episodeName,
-              quality: showData.quality,
-              magnetLink: showData.magnetUrl,
-              dateAdded: Date()
+
+  tracker.getSeeders(showData.magnetUrl)
+    .then(function(result){
+      if(result > 40){
+        TVShow.model.findOne({name: showData.name}).exec(function (err, doc) {
+          if (doc) {
+            //Update doc
+            var foundSeason = false;
+            var madeChanges = false;
+            doc.seasons.forEach(function (season) {
+              if (season.number == showData.season) {
+                foundSeason = true;
+                var foundEpisode = false;
+                season.episodes.forEach(function (episode) {
+                  if (episode.number == showData.episode && episode.quality == showData.quality) {
+                    foundEpisode = episode;
+                  }
+                });
+                if (!foundEpisode) {
+                  season.episodes.push({
+                    number: showData.episode,
+                    name: showData.episodeName,
+                    quality: showData.quality,
+                    magnetLink: showData.magnetUrl,
+                    dateAdded: Date()
+                  });
+                  addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
+                  madeChanges = true;
+                } else {
+                  //Found the episode, but this might be a better torrent
+                  isBetter(foundEpisode.magnetLink, showData.magnetUrl)
+                    .then(function (result) {
+                      if (result) {
+                        foundEpisode.magnetLink = showData.magnetLink
+                        madeChanges = true;
+                      }
+                    })
+                }
+              }
             });
-            addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-          }
-        }
-      });
-      if (!foundSeason) {
-        doc.seasons.push({
-          number: showData.season,
-          episodes: [{
-            number: showData.episode,
-            name: showData.episodeName,
-            quality: showData.quality,
-            magnetLink: showData.magnetUrl,
-            dateAdded: Date()
-          }]
-        })
-        addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-      }
-      doc.save(function (err, doc) {
-        deferred.resolve(doc);
-        console.log("Updated show", doc.name);
-      })
-    } else {
-      //tvdb background http://thetvdb.com/banners/fanart/original/265912-1.jpg
-//tvdb icon http://thetvdb.com/banners/_cache/posters/265912-1.jpg
-      //Create a new entry
-      tvdb.getSeries(showData.name)
-        .then(function (tvdbdata) {
-          //if(!tvdbdata) tvdbdata = {}
-          try{
-            var newShow = new TVShow.model({
-              name: showData.name,
-              imdbId: tvdbdata.IMDB_ID,
-              tvdbId: tvdbdata.id,
-              posterUrl: "http://thetvdb.com/banners/_cache/posters/" + tvdbdata.id + "-1.jpg",
-              backgroundUrl: "http://thetvdb.com/banners/fanart/original/" + tvdbdata.id + "-1.jpg",
-              network: tvdbdata.Network,
-              description: tvdbdata.Overview,
-              seasons: [{
+            if (!foundSeason) {
+              doc.seasons.push({
                 number: showData.season,
                 episodes: [{
-                  name: showData.episodeName,
                   number: showData.episode,
+                  name: showData.episodeName,
                   quality: showData.quality,
                   magnetLink: showData.magnetUrl,
                   dateAdded: Date()
                 }]
-              }]
-            });
-
-            newShow.save(function (err, doc) {
-              deferred.resolve(doc);
+              })
               addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-                console.log("Added show", doc.name);
+              madeChanges = true;
+            }
+            if(madeChanges){
+              doc.save(function (err, doc) {
+                deferred.resolve(doc);
+                console.log("Updated show", doc.name);
+              })
+            } else {
+              deferred.resolve();
+            }
 
-            })
-          }catch(e){
+          } else {
+            //tvdb background http://thetvdb.com/banners/fanart/original/265912-1.jpg
+//tvdb icon http://thetvdb.com/banners/_cache/posters/265912-1.jpg
+            //Create a new entry
+            tvdb.getSeries(showData.name)
+              .then(function (tvdbdata) {
+                //if(!tvdbdata) tvdbdata = {}
+                try{
+                  var newShow = new TVShow.model({
+                    name: showData.name,
+                    imdbId: tvdbdata.IMDB_ID,
+                    tvdbId: tvdbdata.id,
+                    posterUrl: "http://thetvdb.com/banners/_cache/posters/" + tvdbdata.id + "-1.jpg",
+                    backgroundUrl: "http://thetvdb.com/banners/fanart/original/" + tvdbdata.id + "-1.jpg",
+                    network: tvdbdata.Network,
+                    description: tvdbdata.Overview,
+                    seasons: [{
+                      number: showData.season,
+                      episodes: [{
+                        name: showData.episodeName,
+                        number: showData.episode,
+                        quality: showData.quality,
+                        magnetLink: showData.magnetUrl,
+                        dateAdded: Date()
+                      }]
+                    }]
+                  });
 
-            console.log(e, showData);
+                  newShow.save(function (err, doc) {
+                    if(doc){
+                      deferred.resolve(doc);
+                      addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
+                      console.log("Added show", doc.name);
+                    } else {
+
+                      if(!err){console.log("No doc for some reason");}
+                      else console.log("Error adding show", err);
+
+                    }
+
+
+                  })
+                }catch(e){
+
+                  console.log(e, showData);
+                }
+
+              })
+              .catch(function(err){
+                console.error(err, showData);
+              })
+
           }
+        });
+      }
+      else {
+        //console.log('Not adding', showData.name, 'Not enough seeds');
+      }
+    });
 
-        })
-        .catch(function(err){
-          console.error(err, showData);
-        })
 
-    }
-  });
   return deferred.promise;
 }
 
+module.exports = {
+  showRss: showRss,
+  kickass: kickass,
+  addSingleShow: addSingleShow
+};
