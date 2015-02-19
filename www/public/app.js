@@ -24,6 +24,10 @@ angular.module('www').config(function($stateProvider, $urlRouterProvider) {
         url: '/tvShows/:id',
         templateUrl: 'partial/show/show.html'
     });
+    $stateProvider.state('moviesAll', {
+        url: '/movies/all',
+        templateUrl: 'partial/moviesAll/moviesAll.html'
+    });
     /* Add New States Above */
     $urlRouterProvider.otherwise('/tvshows');
 

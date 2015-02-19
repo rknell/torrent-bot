@@ -1,0 +1,10 @@
+<toolbar></toolbar>
+<div ng-controller="MoviesallCtrl" class="padding-menu">
+    <div class="poster col-lg-2 col-md-3 col-sm-4"  ng-repeat="movie in movies">
+        <img ng-src="{{movie.poster}}" class="img-responsive" placeholder>
+        <h3>{{movie.name}} ({{movie.year}})</h3>
+        <div class="qualities">
+            <div ng-repeat="magnet in movie.magnets" ng-click="view(magnet)">{{magnet.quality}}</div>
+        </div>
+    </div>
+</div>

@@ -24,6 +24,7 @@
     "mongoose": "^3.8.20",
     "mongoose-simpletimestamps": "^1.0.0",
     "morgan": "~1.3.0",
+    "moviedb": "^0.1.9",
     "network-address": "0.0.4",
     "numeral": "^1.5.3",
     "parse-torrent": "^4.0.0",

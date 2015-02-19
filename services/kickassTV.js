@@ -46,19 +46,19 @@ function processShows(){
     pages.push(i);
   }
 
-  async.eachLimit(pages, 2, function(item, cb){
+  async.eachLimit(pages, 1, function(item, cb){
     getPage(item)
       .then(function(result){
         console.log("Processed page", item);
 
       })
       .finally(function(result){
-        setTimeout(cb, 1000 * 8);
+        setTimeout(cb, 1000 * 15);
         //cb();
       })
   }, function(done){
     console.log("Processed all shows, starting again.");
-    processShows();
+    setTimeout(processShows, 1000 * 60 * 15);
   })
 }
 

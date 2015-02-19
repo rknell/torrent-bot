@@ -5,6 +5,7 @@ var q = require('q');
 var tracker = require('./tracker');
 var kickassTV = require('./kickassTV');
 var cleanAll = require('./cleanShows');
+var kickassMovies = require('./kickassMovies').processShows();
 
 var engine;
 

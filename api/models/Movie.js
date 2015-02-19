@@ -12,12 +12,21 @@ var mongoose = require('mongoose');
 //Define Schema
 //-------------
 var schema = new mongoose.Schema({
-  name: String,
+  name: {type: String, unique: true},
   year: Number,
-  magnetLink: String,
   imdbId: String,
   imdbRating: String,
   poster: String,
+  background: String,
+  dateAdded: Date,
+  description: String,
+  magnets: [
+    {
+      quality: String,
+      magnetLink: String,
+      dateAdded: Date
+    }
+  ],
   recommendations: [{
     name: String,
     type: String, //movie or tvshow
