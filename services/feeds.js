@@ -217,6 +217,7 @@ function parseShowData(item) {
 
 function cleanName(name){
   name = name.replace(/\./gi, " ");
+  name = name.replace(/\&/gi, "and");
   name = name.trim();
   name = name.toUpperCase();
   return name;
