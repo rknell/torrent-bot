@@ -4,6 +4,7 @@ var feeds = require('./feeds');
 var q = require('q');
 var tracker = require('./tracker');
 var kickassTV = require('./kickassTV');
+var cleanAll = require('./cleanShows');
 
 var engine;
 
@@ -45,28 +46,19 @@ function play(uri){
       });
     }
   } else {
-    //Requesting the same url as last time, so just give the same response and we don't neeed to redownload the shizzle
+    //Requesting the same url as last time, so just give the same response and we don't need to redownload the shizzle
     deferred.resolve(lastResponse);
   }
 
   lastUri = uri;
 
-
   return deferred.promise;
 }
 
-/**
- * Refresh all feeds
- */
-function refreshAll(){
-  //feeds.showRss();
-  //feeds.kickass();
-}
-
-setInterval(refreshAll, 1000 * 30);
-refreshAll();
+//Run the scanners
+feeds.showRss();
 kickassTV.processShows();
-setInterval(kickassTV.processShows, 1000 * 60 * 20);
+
 
 module.exports = {
   engine: engine,

@@ -39,8 +39,6 @@ function getPage(number){
   return deferred.promise;
 }
 
-
-
 function processShows(){
   var pages = [];
 
@@ -48,17 +46,19 @@ function processShows(){
     pages.push(i);
   }
 
-  async.eachLimit(pages, 1, function(item, cb){
+  async.eachLimit(pages, 2, function(item, cb){
     getPage(item)
       .then(function(result){
         console.log("Processed page", item);
-        //cb();
+
       })
       .finally(function(result){
-        cb();
+        setTimeout(cb, 1000 * 8);
+        //cb();
       })
   }, function(done){
-    console.log("Processed all shows");
+    console.log("Processed all shows, starting again.");
+    processShows();
   })
 }
 

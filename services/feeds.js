@@ -5,19 +5,12 @@ var TVShowRecent = require('../api/models/TVShowRecent');
 var async = require('async');
 var q = require('q');
 var tvdb = require('./tvdb');
-
 var tracker = require('./tracker');
 
-//tvdb.getSeries('Helix').then(function(result){
-//  console.log(JSON.stringify(result, null, 2));
-//})
-
 function showRss(cb) {
-  fetch("http://showrss.info/feeds/all.rss", cb);
-}
-
-function kickass(cb) {
-  fetch('http://kickass.to/tv/?rss=1', cb);
+  setInterval(function(){
+    fetch("http://showrss.info/feeds/all.rss", cb);
+  }, 1000 * 60 * 5);
 }
 
 function fetch(feed, cb) {
@@ -160,9 +153,6 @@ function parseShowData(item) {
       magnetUri = item.magnetUri
     }
 
-    //tracker.getSeeders(magnetUri)
-    //  .then(function (result) {
-    //    if (result > 0) {
     //Try seasonXepisode format
     var regExp = /^(.*?)([0-9]{1,})x([0-9]{1,})(.*)/i;
     var result = regExp.exec(item.title);
@@ -226,8 +216,9 @@ function parseShowData(item) {
 }
 
 function cleanName(name){
-  name.replace(/\./g, " ");
-  name.trim();
+  name = name.replace(/\./gi, " ");
+  name = name.trim();
+  name = name.toUpperCase();
   return name;
 }
 
@@ -341,12 +332,8 @@ function addShowToDB(showData) {
             }
 
           } else {
-            //tvdb background http://thetvdb.com/banners/fanart/original/265912-1.jpg
-//tvdb icon http://thetvdb.com/banners/_cache/posters/265912-1.jpg
-            //Create a new entry
             tvdb.getSeries(showData.name)
               .then(function (tvdbdata) {
-                //if(!tvdbdata) tvdbdata = {}
                 try{
                   var newShow = new TVShow.model({
                     name: showData.name,
@@ -406,6 +393,5 @@ function addShowToDB(showData) {
 
 module.exports = {
   showRss: showRss,
-  kickass: kickass,
   addSingleShow: addSingleShow
 };

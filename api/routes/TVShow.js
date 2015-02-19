@@ -20,7 +20,6 @@ function recent(req, res) {
     .sort('-dateAdded')
     .limit(500)
     .exec(function (err, docs) {
-      console.log("Returning recent shows", docs);
       res.json(docs);
     })
 }
