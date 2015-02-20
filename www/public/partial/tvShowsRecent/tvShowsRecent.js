@@ -7,6 +7,7 @@ angular.module('www').controller('TvshowsrecentCtrl', function ($scope, $http, $
         });
 
     $scope.watch = function (show) {
+        $scope.$root.background = show.backgroundUrl;
         nowPlaying.startWatching(show.episode, show.season, show.name, show.magnetLink);
         //$state.go('watchTorrent', {url: show.magnetLink})
     };

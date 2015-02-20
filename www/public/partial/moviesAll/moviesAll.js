@@ -10,8 +10,9 @@ angular.module('www').controller('MoviesallCtrl',function($scope, $state, $http)
             console.error(err);
         });
 
-    $scope.view = function(magnet){
-        $state.go('watchTorrent', {url: magnet.magnetLink});
+    $scope.view = function(movie){
+        console.log("Attempting to view", movie);
+        $state.go('movie', {id: movie._id});
     }
 
 });

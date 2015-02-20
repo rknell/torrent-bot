@@ -3,7 +3,8 @@
 <div ng-controller="ShowCtrl" class="padding-submenu">
     <div class="container">
         <div class="row" >
-            <div class="col-lg-12">
+            <div class="col-lg-4"><img ng-src="{{show.posterUrl}}" class="img-responsive"> </div>
+            <div class="col-lg-8">
                 <div class="description">{{show.description}}</div>
                 <div class="seasons" ng-show="!currentSeason">
                     <div class="col-lg-3 col-sm-6" ng-repeat="season in show.seasons">
