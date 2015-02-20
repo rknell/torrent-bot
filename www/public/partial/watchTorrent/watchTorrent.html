@@ -1,6 +1,7 @@
 <toolbar></toolbar>
-<div class="col-md-12" ng-controller="WatchtorrentCtrl" style="height: 80%" class="padding-menu">
+<div class="col-md-12" ng-controller="WatchtorrentCtrl" style="height: 100%;" class="padding-menu">
 
-    <iframe ng-src="{{streamUrl}}"></iframe>
-
+    <!--<iframe ng-src="{{streamUrl}}"></iframe>-->
+    <div class="loading" ng-show="!streamUrl">Loading...</div>
+    <video ng-show="streamUrl" ng-src="{{streamUrl}}" controls autoplay="true" class="mediaplayer"></video>
 </div>
