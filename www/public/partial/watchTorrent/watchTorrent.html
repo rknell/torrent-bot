@@ -4,4 +4,5 @@
     <!--<iframe ng-src="{{streamUrl}}"></iframe>-->
     <div class="loading-container"><div class="loading" ng-show="!streamUrl">Loading...</div></div>
     <video ng-show="streamUrl" ng-src="{{streamUrl}}" controls autoplay="true" class="mediaplayer"></video>
+    <div class="play-on-chromecast" ng-click="playChromecast()"></div>
 </div>

@@ -49,7 +49,7 @@ function processShows(){
   async.eachLimit(pages, 1, function(item, cb){
     getPage(item)
       .then(function(result){
-        console.log("Processed page", item);
+        //console.log("Processed page", item);
 
       })
       .finally(function(result){

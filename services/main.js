@@ -27,6 +27,7 @@ function play(uri){
       engine.remove(function(){
         engine.destroy(function(){
           engine = torrentController.load(uri, function (err, host) {
+            host.url= host.url + 'media.mp4';
             if(err)
               deferred.reject(err);
             else {
@@ -38,6 +39,7 @@ function play(uri){
       })
     } else {
       engine = torrentController.load(uri, function (err, host) {
+        host.url= host.url + 'media.mp4';
         if(err)
           deferred.reject(err);
         else {

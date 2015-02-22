@@ -81,7 +81,7 @@ var createServer = function (engine, opts) {
     }
 
     if (request.headers.origin) response.setHeader('Access-Control-Allow-Origin', request.headers.origin);
-    if (url.pathname === '/') url.pathname = '/' + index;
+    if (url.pathname === '/' || url.pathname === "/media.mp4") url.pathname = '/' + index;
 
     if (url.pathname === '/favicon.ico') {
       response.statusCode = 404;

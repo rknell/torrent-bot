@@ -1,5 +1,6 @@
 angular.module('www').controller('WatchtorrentCtrl',function($scope, $stateParams, $http, $sce, nowPlaying){
 
+    $scope.untrustedUrl;
 
     if($stateParams.url && $stateParams.url !== "continue"){
         nowPlaying.isPlaying = false;
@@ -8,6 +9,7 @@ angular.module('www').controller('WatchtorrentCtrl',function($scope, $stateParam
             .success(function(result){
                 console.log("Stream result", result);
                 $scope.streamUrl = $sce.trustAsResourceUrl(result.url);
+                $scope.untrustedUrl = result.url;
                 nowPlaying.isPlaying = true;
                 nowPlaying.streamUrl = $scope.streamUrl;
             })
@@ -17,6 +19,21 @@ angular.module('www').controller('WatchtorrentCtrl',function($scope, $stateParam
             })
     } else {
         $scope.streamUrl = nowPlaying.streamUrl;
+    }
+
+    $scope.playChromecast = function () {
+        $http.post('/api/stream/chromecast', {
+            title: "No title yet",
+            url: $scope.untrustedUrl
+        })
+            .success(function (result) {
+                console.log("Result");
+                $scope.isCasting = true;
+            })
+            .error(function (err) {
+                alert("There was an error casting");
+                console.log("Error", err)
+            })
     }
 
 });
