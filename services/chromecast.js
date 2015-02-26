@@ -88,7 +88,7 @@ function play(url, title, poster){
 
     output.client.on('error', function(err) {
       console.log('Error: %s', err.message);
-      client.close();
+      output.client.close();
       deferred.reject();
     });
 

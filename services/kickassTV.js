@@ -12,28 +12,33 @@ function getPage(number){
     , uri: "http://kickass.to/tv/" + number
     , gzip: true
   }, function(err, res, body){
-    var $ = cheerio.load(body);
-    var rows = $('table').find('tr');
+    try {
+      var $ = cheerio.load(body);
+      var rows = $('table').find('tr');
 
-    rows.each(function(index, element){
+      rows.each(function(index, element){
 
-      var output = {
-        title: $(this).find('.cellMainLink').text(),
-        magnetLink:$(this).find('.imagnet').attr('href')
-      }
+        var output = {
+          title: $(this).find('.cellMainLink').text(),
+          magnetLink:$(this).find('.imagnet').attr('href')
+        }
 
-      //console.log(output);
-      //console.log("Adding", output.title)
+        //console.log(output);
+        //console.log("Adding", output.title)
 
-      if(output.title.length < 500 && output.title.length > 10){
-        feeds.addSingleShow(output.title, output.magnetLink)
-          .then(function(){
-            var a =0;
-            deferred.resolve();
-          })
-          .catch(deferred.reject);
-      }
-    })
+        if(output.title.length < 500 && output.title.length > 10){
+          feeds.addSingleShow(output.title, output.magnetLink)
+            .then(function(){
+              var a =0;
+              deferred.resolve();
+            })
+            .catch(deferred.reject);
+        }
+      })
+    } catch(e){
+      deferred.reject(e);
+    }
+
   });
 
   return deferred.promise;

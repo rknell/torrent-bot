@@ -272,7 +272,7 @@ function addShowToDB(showData) {
 
   tracker.getSeeders(showData.magnetUrl)
     .then(function(result){
-      if(result > 40){
+      if(result > 60){
         TVShow.model.findOne({name: showData.name}).exec(function (err, doc) {
           if (doc) {
             //Update doc
