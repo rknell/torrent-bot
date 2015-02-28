@@ -37,6 +37,7 @@
     <script src="partial/moviesAll/moviesAll.js"></script>
     <script src="partial/movie/movie.js"></script>
     <script src="service/background.js"></script>
+    <script src="directive/currentTime/currentTime.js"></script>
     <!-- Add New Component JS Above -->
 
 </head>
@@ -45,7 +46,9 @@
 
 <div style="background-image:url({{background}}); background-size: cover; background-color: #161616" class="background"></div>
 <div ui-view style="height: 100%">
+
 </div>
 
+<current-time></current-time>
 </body>
 </html>
