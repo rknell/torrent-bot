@@ -18,11 +18,22 @@ function getSeeders(magnetLink) {
     var port = 6881;
     var client = new Client(peerId, port, parsedTorrent);
 
+    var returnedResults = 0;
+
     client.on('scrape', function (data) {
+      returnedResults ++;
       client.stop();
       if(maxSeeders < data.complete) maxSeeders = data.complete;
-      deferred.resolve(maxSeeders);
+
+      if(returnedResults === parsedTorrent.tr.length){
+        deferred.resolve(maxSeeders);
+      }
     });
+
+    //Timeout in 10 secs
+    setTimeout(function(){
+      deferred.resolve(maxSeeders);
+    }, 1000 * 10);
 
     client.scrape();
 
