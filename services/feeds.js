@@ -7,8 +7,13 @@ var q = require('q');
 var tvdb = require('./tvdb');
 var tracker = require('./tracker');
 
+
+
+var rejectCount = 0;
+var addingCount = 0;
+
 function showRss(cb) {
-  setInterval(function(){
+  setInterval(function () {
     fetch("http://showrss.info/feeds/all.rss", cb);
   }, 1000 * 60 * 5);
 }
@@ -84,9 +89,9 @@ function fetch(feed, cb) {
       var output = [];
 
       //Parse the show information for each item
-      data.forEach(function(item){
+      data.forEach(function (item) {
         var parsed = parseShowData(item);
-        if(parsed) {
+        if (parsed) {
           output.push(parsed);
         }
       });
@@ -104,20 +109,18 @@ function fetch(feed, cb) {
   }
 }
 
-function addSingleShow(title, magnetLink){
+function addSingleShow(title, magnetLink) {
 
   var deferred = q.defer();
-
   var data = parseShowData({title: title, magnetUri: magnetLink});
-  if(data){
+
+  if (data) {
     addShowToDB(data)
-      .then(function(){
-        var a = 0;
-        deferred.resolve();
-      })
+      .then(deferred.resolve)
       .catch(deferred.reject);
   } else {
-    deferred.reject();
+    console.log("Rejecting - Invalid title", title, rejectCount++);
+    deferred.reject({message: "Invalid Title"});
   }
 
   return deferred.promise;
@@ -125,7 +128,6 @@ function addSingleShow(title, magnetLink){
 }
 
 function parseShowData(item) {
-
 
 
   var blackListRegex = /Spanish|\[ITA\]|Lektor Pl|ITTV|Subtitulado|flemish/i;
@@ -206,7 +208,7 @@ function parseShowData(item) {
 
     }
 
-    if(showData && showData.name){
+    if (showData && showData.name) {
       showData.name = cleanName(showData.name);
     }
 
@@ -215,15 +217,16 @@ function parseShowData(item) {
   }
 }
 
-function cleanName(name){
+function cleanName(name) {
   name = name.replace(/\./gi, " ");
   name = name.replace(/\&/gi, "and");
+  name = name.replace(/\'\!/gi, "");
   name = name.trim();
   name = name.toUpperCase();
   return name;
 }
 
-function addShowToRecents(showData, posterUrl, backgroundUrl){
+function addShowToRecents(showData, posterUrl, backgroundUrl) {
   var newShow = new TVShowRecent.model({
     name: showData.name,
     year: showData.year,
@@ -237,13 +240,12 @@ function addShowToRecents(showData, posterUrl, backgroundUrl){
     quality: showData.quality,
     magnetLink: showData.magnetUrl,
     tvdbId: showData.tvdbId
-  })
-  newShow.save(function(err, doc){
-    if(err){
-      console.error(showData, err)
-    } else{
-    }
+  });
 
+  newShow.save(function (err, doc) {
+    if (err) {
+      console.error(showData, err)
+    }
   })
 }
 
@@ -266,128 +268,148 @@ function isBetter(current, newItem) {
   return deferred.promise;
 }
 
+function updateShow(doc, showData){
+  var deferred = q.defer();
+  //Update doc
+  var foundSeason = false;
+  var madeChanges = false;
+  doc.seasons.forEach(function (season) {
+    if (season.number == showData.season) {
+      foundSeason = true;
+      var foundEpisode = false;
+      season.episodes.forEach(function (episode) {
+        if (episode.number == showData.episode && episode.quality == showData.quality) {
+          foundEpisode = episode;
+        }
+      });
+      if (!foundEpisode) {
+        season.episodes.push({
+          number: showData.episode,
+          name: showData.episodeName,
+          quality: showData.quality,
+          magnetLink: showData.magnetUrl,
+          dateAdded: Date()
+        });
+        addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
+        madeChanges = true;
+      } else {
+        //Found the episode, but this might be a better torrent
+        isBetter(foundEpisode.magnetLink, showData.magnetUrl)
+          .then(function (result) {
+            if (result) {
+              foundEpisode.magnetLink = showData.magnetLink
+              madeChanges = true;
+            }
+          })
+      }
+    }
+  });
+
+  if (!foundSeason) {
+    doc.seasons.push({
+      number: showData.season,
+      episodes: [{
+        number: showData.episode,
+        name: showData.episodeName,
+        quality: showData.quality,
+        magnetLink: showData.magnetUrl,
+        dateAdded: Date()
+      }]
+    });
+    addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
+    madeChanges = true;
+  }
+  if (madeChanges) {
+    doc.save(function (err, doc) {
+      deferred.resolve(doc);
+      console.log("Updated show", doc.name);
+    })
+  } else {
+    deferred.reject({message: "No Changes Made"});
+  }
+
+  return deferred.promise;
+}
+
+function saveShow(showData){
+  var deferred = q.defer();
+
+  tvdb.getSeries(showData.name)
+    .then(function (tvdbdata) {
+      var newShow = new TVShow.model({
+        name: showData.name,
+        imdbId: tvdbdata.IMDB_ID,
+        tvdbId: tvdbdata.id,
+        posterUrl: "http://thetvdb.com/banners/_cache/posters/" + tvdbdata.id + "-1.jpg",
+        backgroundUrl: "http://thetvdb.com/banners/fanart/original/" + tvdbdata.id + "-1.jpg",
+        network: tvdbdata.Network,
+        description: tvdbdata.Overview,
+        seasons: [{
+          number: showData.season,
+          episodes: [{
+            name: showData.episodeName,
+            number: showData.episode,
+            quality: showData.quality,
+            magnetLink: showData.magnetUrl,
+            dateAdded: Date()
+          }]
+        }]
+      });
+
+      newShow.save(function (err, doc) {
+        if (doc) {
+          returned = true;
+          deferred.resolve(doc);
+          addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
+          console.log("Added show", doc.name);
+        } else {
+          if (!err) {
+            console.log("No doc for some reason");
+            deferred.reject({message: "No doc for some reason"});
+          }
+          else {
+            deferred.reject({message: "Error adding show", data: err});
+          }
+        }
+      })
+    })
+    .catch(function (err) {
+      console.error(err, showData);
+      returned = true;
+      deferred.reject(err);
+    })
+
+  return deferred.promise;
+}
+
 
 function addShowToDB(showData) {
   var deferred = q.defer();
 
+  var returned = false;
+
   tracker.getSeeders(showData.magnetUrl)
-    .then(function(result){
-      if(result > 60){
+    .then(function (result) {
+      if (result > 60) {
         TVShow.model.findOne({name: showData.name}).exec(function (err, doc) {
           if (doc) {
-            //Update doc
-            var foundSeason = false;
-            var madeChanges = false;
-            doc.seasons.forEach(function (season) {
-              if (season.number == showData.season) {
-                foundSeason = true;
-                var foundEpisode = false;
-                season.episodes.forEach(function (episode) {
-                  if (episode.number == showData.episode && episode.quality == showData.quality) {
-                    foundEpisode = episode;
-                  }
-                });
-                if (!foundEpisode) {
-                  season.episodes.push({
-                    number: showData.episode,
-                    name: showData.episodeName,
-                    quality: showData.quality,
-                    magnetLink: showData.magnetUrl,
-                    dateAdded: Date()
-                  });
-                  addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-                  madeChanges = true;
-                } else {
-                  //Found the episode, but this might be a better torrent
-                  isBetter(foundEpisode.magnetLink, showData.magnetUrl)
-                    .then(function (result) {
-                      if (result) {
-                        foundEpisode.magnetLink = showData.magnetLink
-                        madeChanges = true;
-                      }
-                    })
-                }
-              }
-            });
-            if (!foundSeason) {
-              doc.seasons.push({
-                number: showData.season,
-                episodes: [{
-                  number: showData.episode,
-                  name: showData.episodeName,
-                  quality: showData.quality,
-                  magnetLink: showData.magnetUrl,
-                  dateAdded: Date()
-                }]
-              })
-              addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-              madeChanges = true;
-            }
-            if(madeChanges){
-              doc.save(function (err, doc) {
-                deferred.resolve(doc);
-                console.log("Updated show", doc.name);
-              })
-            } else {
-              deferred.resolve();
-            }
+            updateShow(doc, showData)
+              .then(deferred.resolve)
+              .catch(deferred.reject);
 
           } else {
-            tvdb.getSeries(showData.name)
-              .then(function (tvdbdata) {
-                try{
-                  var newShow = new TVShow.model({
-                    name: showData.name,
-                    imdbId: tvdbdata.IMDB_ID,
-                    tvdbId: tvdbdata.id,
-                    posterUrl: "http://thetvdb.com/banners/_cache/posters/" + tvdbdata.id + "-1.jpg",
-                    backgroundUrl: "http://thetvdb.com/banners/fanart/original/" + tvdbdata.id + "-1.jpg",
-                    network: tvdbdata.Network,
-                    description: tvdbdata.Overview,
-                    seasons: [{
-                      number: showData.season,
-                      episodes: [{
-                        name: showData.episodeName,
-                        number: showData.episode,
-                        quality: showData.quality,
-                        magnetLink: showData.magnetUrl,
-                        dateAdded: Date()
-                      }]
-                    }]
-                  });
-
-                  newShow.save(function (err, doc) {
-                    if(doc){
-                      deferred.resolve(doc);
-                      addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl)
-                      console.log("Added show", doc.name);
-                    } else {
-
-                      if(!err){console.log("No doc for some reason");}
-                      else console.log("Error adding show", err);
-
-                    }
-
-
-                  })
-                }catch(e){
-
-                  console.log(e, showData);
-                }
-
-              })
-              .catch(function(err){
-                console.error(err, showData);
-              })
-
+            saveShow(showData)
+              .then(deferred.resolve)
+              .catch(deferred.reject);
           }
         });
       }
       else {
-        //console.log('Not adding', showData.name, 'Not enough seeds');
+        console.log('Not adding', showData.name, 'Not enough seeds');
+        returned = true;
+        deferred.reject({message: "Not enough seeds"});
       }
-    });
-
+    })
 
   return deferred.promise;
 }

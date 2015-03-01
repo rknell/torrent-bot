@@ -12,7 +12,7 @@ function getSeeders(magnetLink) {
 
   try {
 
-    var maxSeeders = 0;
+    var maxSeeders = 100;
     var parsedTorrent = parseTorrent(magnetLink); // { infoHash: 'xxx', length: xx, announce: ['xx', 'xx'] }
     var peerId = new Buffer('01234563890123456789');
     var port = 6881;
@@ -36,8 +36,6 @@ function getSeeders(magnetLink) {
     }, 1000 * 10);
 
     client.scrape();
-
-    setTimeout(deferred.reject, 6000);
   } catch(e){
     console.log("Error", e, magnetLink);
     deferred.reject(e);
