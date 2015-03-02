@@ -67,11 +67,13 @@ function getSeeders(magnetLink) {
       //Dont remove it just yet!
       maxSeeders = 100;
       unsuccessfulRequests ++;
+      deferred.reject({message: "Could not connect to any tracker"});
     } else {
       //console.log("Timed out with results", magnetLink, returnedClientResults, maxSeeders);
       successfulRequests++;
+      deferred.resolve(maxSeeders);
     }
-    deferred.resolve(maxSeeders);
+
     client.stop();
     client.destroy();
   }, 1000 * timeoutMultiplier);
