@@ -20,6 +20,7 @@
     "feedparser": "^0.19.2",
     "helmet": "^0.5.2",
     "jade": "~1.6.0",
+    "mdns": "^2.2.8",
     "mime": "^1.2.11",
     "mockgoose": "^1.10.7",
     "mongoose": "^3.8.20",
