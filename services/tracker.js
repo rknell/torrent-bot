@@ -50,7 +50,7 @@ function getSeeders(magnetLink) {
   });
   client.update();
 
-  if((successfulRequests / (successfulRequests + unsuccessfulRequests)) < 0.9){
+  if((successfulRequests / (successfulRequests + unsuccessfulRequests)) < 0.97){
     timeoutMultiplier++;
   } else {
     timeoutMultiplier--;
