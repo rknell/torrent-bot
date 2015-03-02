@@ -28,6 +28,7 @@ function clean(show){
 }
 
 function cleanAll(){
+  console.log("Cleaning shows");
   var deferred = q.defer();
 
   TVShows.model.find({})

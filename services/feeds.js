@@ -7,11 +7,6 @@ var q = require('q');
 var tvdb = require('./tvdb');
 var tracker = require('./tracker');
 
-
-
-var rejectCount = 0;
-var addingCount = 0;
-
 function showRss(cb) {
   setInterval(function () {
     fetch("http://showrss.info/feeds/all.rss", cb);
@@ -119,7 +114,6 @@ function addSingleShow(title, magnetLink) {
       .then(deferred.resolve)
       .catch(deferred.reject);
   } else {
-    console.log("Rejecting - Invalid title", title, rejectCount++);
     deferred.reject({message: "Invalid Title"});
   }
 
@@ -409,7 +403,7 @@ function addShowToDB(showData) {
         returned = true;
         deferred.reject({message: "Not enough seeds"});
       }
-    })
+    });
 
   return deferred.promise;
 }

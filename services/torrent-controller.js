@@ -81,7 +81,7 @@ module.exports = {
         clivas.flush();
       };
 
-      engine.drawTimerId = setInterval(draw, 500);
+      //engine.drawTimerId = setInterval(draw, 500);
       draw();
     });
 

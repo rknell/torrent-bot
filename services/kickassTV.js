@@ -33,7 +33,7 @@ function getPage(number){
 
       var outstanding = [];
 
-      async.each(items, function (item, cb) {
+      async.eachLimit(items,1, function (item, cb) {
         outstanding.push(item.title);
         if (item.title === "Brooklyn Nine-Nine S02E16 HDTV x264-ASAP [eztv]") {
           var a = 0;
@@ -43,7 +43,7 @@ function getPage(number){
             console.log("Added", item.title);
           })
           .catch(function (err) {
-            console.log("Rejected", item.title, err);
+            //console.log("Rejected", item.title, err);
           })
           .finally(function () {
             outstanding.splice(outstanding.indexOf(item.title), 1);
@@ -83,8 +83,8 @@ function processShows(){
         console.error("Error processing show page", err.stack);
       })
       .finally(function(result){
-        setTimeout(cb, 1000 * 15);
-        //cb();
+        //setTimeout(cb, 1000 * 60);
+        cb();
       })
   }, function(done){
     console.log("Processed all shows, starting again.");

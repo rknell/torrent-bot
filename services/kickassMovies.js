@@ -17,7 +17,7 @@ function getPage(number){
       var $ = cheerio.load(body);
       var rows = $('table').find('tr');
 
-      rows.each(function(index, element){
+      async.eachLimit(rows, 1, function(index, element){
 
         var output = {
           title: $(this).find('.cellMainLink').text(),

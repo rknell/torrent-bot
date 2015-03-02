@@ -7,41 +7,80 @@ var async = require('async');
 var TVShows = require('../api/models/TVShow');
 var TVShowsRecent = require('../api/models/TVShowRecent');
 
+var successfulRequests = 0;
+var unsuccessfulRequests = 0;
+var timeoutMultiplier = 50;
+
 function getSeeders(magnetLink) {
   var deferred = q.defer();
 
-  try {
+  var maxSeeders = 0;
+  var parsedTorrent = parseTorrent(magnetLink); // { infoHash: 'xxx', length: xx, announce: ['xx', 'xx'] }
 
-    var maxSeeders = 100;
-    var parsedTorrent = parseTorrent(magnetLink); // { infoHash: 'xxx', length: xx, announce: ['xx', 'xx'] }
-    var peerId = new Buffer('01234563890123456789');
-    var port = 6881;
-    var client = new Client(peerId, port, parsedTorrent);
+  var peerSeed = (Math.random() + ' ').substring(2, 10) + (Math.random() + ' ').substring(2, 10) + (Math.random() + ' ').substring(2, 8);
 
-    var returnedResults = 0;
+  var peerId = new Buffer(peerSeed);
+  var port = 6881;
+  var client = new Client(peerId, port, parsedTorrent);
 
-    client.on('scrape', function (data) {
-      returnedResults ++;
-      client.stop();
-      if(maxSeeders < data.complete) maxSeeders = data.complete;
+  var returnedResults = 0;
+  var returnedClientResults = 0;
+  var numberOfTrackers = parsedTorrent.tr.length;
 
-      if(returnedResults === parsedTorrent.tr.length){
-        deferred.resolve(maxSeeders);
-      }
-    });
+  client.on('scrape', function (data) {
+    returnedResults++;
+    client.stop();
+    if (maxSeeders < data.complete) maxSeeders = data.complete;
 
-    //Timeout in 10 secs
-    setTimeout(function(){
+    if (returnedResults === numberOfTrackers) {
       deferred.resolve(maxSeeders);
-    }, 1000 * 10);
+      client.stop();
+      client.destroy();
+      successfulRequests ++;
+    }
+  });
 
-    client.scrape();
-  } catch(e){
-    console.log("Error", e, magnetLink);
-    deferred.reject(e);
+  client.on('update', function (data) {
+    returnedClientResults++;
+
+    if (data.complete > maxSeeders) {
+      maxSeeders = data.complete;
+    }
+
+  });
+  client.update();
+
+  if((successfulRequests / (successfulRequests + unsuccessfulRequests)) < 0.9){
+    timeoutMultiplier++;
+  } else {
+    timeoutMultiplier--;
   }
 
+
+  if(timeoutMultiplier < 5) timeoutMultiplier = 5;
+  if(timeoutMultiplier > 60) timeoutMultiplier = 60;
+  setTimeout(function () {
+    if (maxSeeders === 0) {
+      //For some reason everything failed.
+      //console.error("Could not get ANY seed results", magnetLink, returnedClientResults, maxSeeders);
+
+      //Dont remove it just yet!
+      maxSeeders = 100;
+      unsuccessfulRequests ++;
+    } else {
+      //console.log("Timed out with results", magnetLink, returnedClientResults, maxSeeders);
+      successfulRequests++;
+    }
+    deferred.resolve(maxSeeders);
+    client.stop();
+    client.destroy();
+  }, 1000 * timeoutMultiplier);
+
+  client.scrape();
+
   return deferred.promise;
+
+
 }
 
 function CheckSeeds() {
@@ -49,7 +88,7 @@ function CheckSeeds() {
     .exec(function (err, docs) {
       console.log("Number of shows", docs.length);
 
-      async.eachLimit(docs, 5, function (item, cbA) {
+      async.eachLimit(docs, 1, function (item, cbA) {
         if (!item.seasons) item.seasons = [];
         async.eachLimit(item.seasons, 1, function (season, cbB) {
           if (!season.episodes) season.episodes = [];
@@ -66,18 +105,19 @@ function CheckSeeds() {
                     season: season.number,
                     episode: episode.number,
                     quality: episode.quality
-                  }, function(err){
-                    if(err) console.err("Error removing dodgy show from recents", err);
+                  }, function (err) {
+                    if (err) console.err("Error removing dodgy show from recents", err);
                   })
 
                 } else {
                   episode.seeds = seeds;
                 }
                 item.save(function (err, doc) {
-                  cbC();
+                  //cbC();
+                  setTimeout(cbC, 1000 * 10);
                 });
               })
-              .catch(function(err){
+              .catch(function (err) {
                 if (err) console.error(err);
                 cbC();
               })
@@ -87,9 +127,17 @@ function CheckSeeds() {
         }, function (err) {
           cbA();
         })
+      }, function (err) {
+        //Completed checking seeds
+        setTimeout(CheckSeeds, 1000 * 60 * 12);
       })
     })
 }
+
+setInterval(function(){
+  console.log("Successful tracker requests", successfulRequests, unsuccessfulRequests, successfulRequests / (successfulRequests + unsuccessfulRequests), timeoutMultiplier)
+}, 1000 * 10);
+
 
 module.exports = {
   getSeeders: getSeeders
