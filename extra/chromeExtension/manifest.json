@@ -1,0 +1,11 @@
+{
+   "background": {
+      "scripts": [ "contextMenu.js" ]
+   },
+   "description": "Stream torrents by right clicking",
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtgxS6xxqegRGwqhhcfKXI0/fwfuPl7RUmrr0ZJyDCQ+qAuGXYjmSZQS1stdMY4EeeamlMDFqbfFeeSKUlh4Y4o39ogm2h26sPQ9eIV2jnH0ilRYerf4GELYaQdfeMtomn25rAqwHen4zxaI4gg8zPs7kzW9RTIq2Qw1y8HDGGHRePluUUAm51jdNT6E3E/QVwijj/B625YiQVNM1a1IOeHBH0lP3XAk5tD6PpQmv8rCfOAW0cUcwRpLZDX343oRon5hMc+qrtF0VBfhiq/vGM0z3BK+exqkCVvOygXUf+XLPL8aoRAx0EXHw7/tkqjPHmgW7zyapJP3n0hU5hOYC+QIDAQAB",
+   "manifest_version": 2,
+   "name": "Torrent Stream Menu",
+   "permissions": [ "contextMenus", "tabs" ],
+   "version": "1.0"
+}
