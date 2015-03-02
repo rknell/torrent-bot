@@ -83,8 +83,8 @@ function processShows(){
         console.error("Error processing show page", err.stack);
       })
       .finally(function(result){
-        //setTimeout(cb, 1000 * 15);
-        cb();
+        setTimeout(cb, 1000 * 15);
+        //cb();
       })
   }, function(done){
     console.log("Processed all shows, starting again.");
