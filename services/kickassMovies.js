@@ -6,6 +6,7 @@ var q = require('q');
 var movies = require('./movies');
 
 function getPage(number){
+  console.log("Processing Kickass Movies Page", number);
 
   var deferred = q.defer();
 
@@ -17,7 +18,7 @@ function getPage(number){
       var $ = cheerio.load(body);
       var rows = $('table').find('tr');
 
-      async.eachLimit(rows, 1, function(index, element){
+      async.eachLimit(rows, 2, function(index, element){
 
         var output = {
           title: $(this).find('.cellMainLink').text(),

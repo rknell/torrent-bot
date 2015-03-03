@@ -6,6 +6,7 @@ var q = require('q');
 q.longStackSupport = true;
 
 function getPage(number){
+  console.log("Processing Kickass TV Shows Page", number);
 
   var deferred = q.defer();
 
@@ -33,7 +34,7 @@ function getPage(number){
 
       var outstanding = [];
 
-      async.eachLimit(items,1, function (item, cb) {
+      async.eachLimit(items,2, function (item, cb) {
         outstanding.push(item.title);
         if (item.title === "Brooklyn Nine-Nine S02E16 HDTV x264-ASAP [eztv]") {
           var a = 0;
@@ -41,9 +42,6 @@ function getPage(number){
         feeds.addSingleShow(item.title, item.magnetLink)
           .then(function () {
             console.log("Added", item.title);
-          })
-          .catch(function (err) {
-            //console.log("Rejected", item.title, err);
           })
           .finally(function () {
             outstanding.splice(outstanding.indexOf(item.title), 1);
