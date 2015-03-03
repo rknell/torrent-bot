@@ -403,7 +403,8 @@ function addShowToDB(showData) {
         returned = true;
         deferred.reject({message: "Not enough seeds"});
       }
-    });
+    })
+    .catch(deferred.reject)
 
   return deferred.promise;
 }
