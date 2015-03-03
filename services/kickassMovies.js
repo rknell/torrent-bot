@@ -48,7 +48,7 @@ function processShows(){
     pages.push(i);
   }
 
-  async.eachLimit(pages, 2, function(item, cb){
+  async.eachLimit(pages, 1, function(item, cb){
     getPage(item)
       .then(function(result){
         //console.log("Processed page", item);
