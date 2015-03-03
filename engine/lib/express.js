@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(session({
-  secret: '1234890sdlkjfu02',
+  secret: '453675869876khjgk',
   resave: false,
   saveUninitialized: true
 }));

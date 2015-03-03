@@ -26,10 +26,15 @@ function getHost(){
 
 
   scanner(function(err, service) {
-    console.log('chromecast %s running on: %s',
-      service.name,
-      service.data);
-    deferred.resolve(service.data);
+    if(service){
+      console.log('chromecast %s running on: %s',
+        service.name,
+        service.data);
+      deferred.resolve(service.data);
+    }
+    if(err){
+      console.error("Error getting chromecast via scanner", err);
+    }
   });
 
   return deferred.promise;

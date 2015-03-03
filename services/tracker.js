@@ -138,6 +138,10 @@ function CheckSeeds() {
 
 setInterval(function(){
   console.log("Successful tracker requests", successfulRequests, unsuccessfulRequests, successfulRequests / (successfulRequests + unsuccessfulRequests), timeoutMultiplier)
+
+  //Make it so that in time it wont get stuck if it has a bad moment
+  if (unsuccessfulRequests > 0) unsuccessfulRequests--;
+  if (successfulRequests > 0) successfulRequests--;
 }, 1000 * 10);
 
 
