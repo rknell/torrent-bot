@@ -36,7 +36,7 @@ function getPage(number){
 
       async.eachLimit(items,2, function (item, cb) {
         outstanding.push(item.title);
-        if (item.title === "Brooklyn Nine-Nine S02E16 HDTV x264-ASAP [eztv]") {
+        if (item.title === "The Last Man On Earth S01E01 HDTV x264-KILLERS[ettv]") {
           var a = 0;
         }
         feeds.addSingleShow(item.title, item.magnetLink)
@@ -44,6 +44,7 @@ function getPage(number){
             console.log("Added", item.title);
           })
           .finally(function () {
+            console.log("Finished processing", item.title);
             outstanding.splice(outstanding.indexOf(item.title), 1);
             cb();
           });
@@ -53,7 +54,7 @@ function getPage(number){
 
       setTimeout(function () {
         console.log("Outstanding", JSON.stringify(outstanding, null, 2));
-      }, 1000 * 20);
+      }, 1000 * 60);
 
     } catch(e){
       deferred.reject(e);
