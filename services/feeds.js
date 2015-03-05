@@ -264,44 +264,49 @@ function isBetter(current, newItem) {
 
 function getTMDBData(showData) {
   var deferred = q.defer();
-  var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
-  getTMDBConfig()
-    .then(function () {
-      MovieDB.searchTv({query: showData.name}, function (err, showRes) {
-        if (err || !showRes.results || !showRes.results.length) {
-          if (err) {
-            console.error(err);
-          }
-          deferred.reject(err);
-        }
-        else {
-          showRes.results[0]['backdrop_path'] = tmdbConfig.images['base_url'] + 'w1280' + showRes.results[0]['backdrop_path'];
-          showRes.results[0]['poster_path'] = tmdbConfig.images['base_url'] + 'w342' + showRes.results[0]['poster_path'];
-
-          MovieDB.tvEpisodeInfo({
-            season_number: showData.season,
-            episode_number: showData.episode,
-            id: showRes.results[0].id
-          }, function (err, episodeRes) {
+  try{
+    var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+    getTMDBConfig()
+      .then(function () {
+        MovieDB.searchTv({query: showData.name}, function (err, showRes) {
+          if (err || !showRes.results || !showRes.results.length) {
             if (err) {
               console.error(err);
-              deferred.reject(err);
             }
-            else {
-              episodeRes["still_path"] = tmdbConfig.images['base_url'] + 'w300' + episodeRes["still_path"]
-              deferred.resolve({
-                showRes: showRes.results[0],
-                episodeRes: episodeRes
-              })
-            }
-          })
-        }
+            deferred.reject(err);
+          }
+          else {
+            showRes.results[0]['backdrop_path'] = tmdbConfig.images['base_url'] + 'w1280' + showRes.results[0]['backdrop_path'];
+            showRes.results[0]['poster_path'] = tmdbConfig.images['base_url'] + 'w342' + showRes.results[0]['poster_path'];
+
+            MovieDB.tvEpisodeInfo({
+              season_number: showData.season,
+              episode_number: showData.episode,
+              id: showRes.results[0].id
+            }, function (err, episodeRes) {
+              if (err) {
+                console.error(err);
+                deferred.reject(err);
+              }
+              else {
+                episodeRes["still_path"] = tmdbConfig.images['base_url'] + 'w300' + episodeRes["still_path"]
+                deferred.resolve({
+                  showRes: showRes.results[0],
+                  episodeRes: episodeRes
+                })
+              }
+            })
+          }
+        })
       })
-    })
-    .catch(function (err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+      .catch(function (err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+  } catch(e){
+    deferred.reject(e);
+  }
+
 
   return deferred.promise;
 }
@@ -457,18 +462,20 @@ function addShowToDB(showData) {
 
 var tmdbConfig;
 function getTMDBConfig() {
-  var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
   var deferred = q.defer();
-
-  if (!tmdbConfig) {
-    MovieDB.configuration(function (err, res) {
-      tmdbConfig = res;
-      deferred.resolve(res);
-    })
-  } else {
-    deferred.resolve(tmdbConfig);
+  try{
+    if (!tmdbConfig) {
+      var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+      MovieDB.configuration(function (err, res) {
+        tmdbConfig = res;
+        deferred.resolve(res);
+      })
+    } else {
+      deferred.resolve(tmdbConfig);
+    }
+  }catch(e){
+    deferred.reject(e);
   }
-
   return deferred.promise;
 }
 
