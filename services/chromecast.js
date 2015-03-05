@@ -105,7 +105,7 @@ function play(url, title, poster){
 
     output.client.on('error', function(err) {
       console.log('Error: %s', err.message);
-      if(output.client) output.client.close();
+      //if(output.client) output.client.close();
       deferred.reject();
     });
 
