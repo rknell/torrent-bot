@@ -1,4 +1,4 @@
-angular.module('www', ['ui.bootstrap','ui.utils','ui.router','ngAnimate', 'iso.directives']);
+angular.module('www', ['ui.bootstrap','ui.utils','ui.router','ngAnimate']);
 
 angular.module('www').config(function($stateProvider, $urlRouterProvider) {
 
