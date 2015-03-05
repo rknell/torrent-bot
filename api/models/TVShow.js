@@ -15,6 +15,7 @@ var schema = new mongoose.Schema({
   imdbId: String,
   imdbRating: String,
   tvdbId: String,
+  tmdbId: String,
   posterUrl: String,
   backgroundUrl: String,
   network: String,
@@ -35,7 +36,10 @@ var schema = new mongoose.Schema({
       watched: {type: Boolean, default: false},
       dateAdded: Date,
       dateWatched: Date,
-      seeds: Number
+      seeds: Number,
+      dateAired: Date,
+      synopsis: String,
+      stillUrl: String
     }]
   }]
 });

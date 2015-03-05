@@ -17,6 +17,7 @@ var schema = new mongoose.Schema({
   episode: String,
   watched: Boolean,
   dateAdded: Date,
+  dateAired: Date,
   dateWatched: Date,
   quality: String,
   magnetLink: String,

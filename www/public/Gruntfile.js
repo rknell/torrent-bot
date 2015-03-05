@@ -164,20 +164,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    //Imagemin has issues on Windows.
-    //To enable imagemin:
-    // - "npm install grunt-contrib-imagemin"
-    // - Comment in this section
-    // - Add the "imagemin" task after the "htmlmin" task in the build task alias
-    // imagemin: {
-    //   main:{
-    //     files: [{
-    //       expand: true, cwd:'dist/',
-    //       src:['**/{*.png,*.jpg}'],
-    //       dest: 'dist/'
-    //     }]
-    //   }
-    // },
     karma: {
       options: {
         frameworks: ['jasmine'],
@@ -196,7 +182,7 @@ module.exports = function (grunt) {
       },
       during_watch: {
         browsers: ['PhantomJS']
-      },
+      }
     }
   });
 

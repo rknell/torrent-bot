@@ -49,24 +49,6 @@ function cleanTitle(title) {
   return title;
 }
 
-
-//var schema = new mongoose.Schema({
-//  name: String,
-//  year: Number,
-//  magnetLink: String,
-//  imdbId: String,
-//  imdbRating: String,
-//  poster: String,
-//  quality: String,
-//  dateAdded: Date,
-//  description: String,
-//  recommendations: [{
-//    name: String,
-//    type: String, //movie or tvshow
-//    id: String
-//  }]
-//});
-
 function isBetter(current, newItem) {
   var deferred = q.defer();
   var currentResult, newResult;

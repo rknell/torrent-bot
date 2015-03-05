@@ -17,7 +17,7 @@ var TVShowRecent = require('../models/TVShowRecent');
 function recent(req, res) {
   TVShowRecent.model
     .find({})
-    .sort('-dateAdded')
+    .sort('-dateAired')
     .limit(500)
     .exec(function (err, docs) {
       res.json(docs);

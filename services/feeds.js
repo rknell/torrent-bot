@@ -213,24 +213,24 @@ function parseShowData(item) {
 
 function cleanName(name) {
   name = name.replace(/\./gi, " ");
-  name = name.replace(/\&/gi, "and");
-  name = name.replace(/\'|\!|\(|\)/gi, "");
+  name = name.replace(/\&/gi, " ");
+  name = name.replace(/\'|\!|\(|\)|US/gi, "");
   name = name.trim();
   name = name.toUpperCase();
   return name;
 }
 
-function addShowToRecents(showData, posterUrl, backgroundUrl) {
+function addShowToRecents(showData, posterUrl, backgroundUrl, tmdbData) {
   var newShow = new TVShowRecent.model({
-    name: showData.name,
+    name: tmdbData.showRes.name,
     year: showData.year,
-    posterUrl: posterUrl,
-    backgroundUrl: backgroundUrl,
+    posterUrl: tmdbData.showRes["poster_path"],
+    backgroundUrl: tmdbData.showRes["backdrop_path"],
     season: showData.season,
     episode: showData.episode,
     watched: false,
     dateAdded: Date(),
-    dateWatched: Date(),
+    dateAired: tmdbData.episodeRes['air_date'],
     quality: showData.quality,
     magnetLink: showData.magnetUrl,
     tvdbId: showData.tvdbId
@@ -262,11 +262,56 @@ function isBetter(current, newItem) {
   return deferred.promise;
 }
 
-function updateShow(doc, showData){
+function getTMDBData(showData) {
+  var deferred = q.defer();
+  var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+  getTMDBConfig()
+    .then(function () {
+      MovieDB.searchTv({query: showData.name}, function (err, showRes) {
+        if (err || !showRes.results || !showRes.results.length) {
+          if (err) {
+            console.error(err);
+          }
+          deferred.reject(err);
+        }
+        else {
+          showRes.results[0]['backdrop_path'] = tmdbConfig.images['base_url'] + 'w1280' + showRes.results[0]['backdrop_path'];
+          showRes.results[0]['poster_path'] = tmdbConfig.images['base_url'] + 'w342' + showRes.results[0]['poster_path'];
+
+          MovieDB.tvEpisodeInfo({
+            season_number: showData.season,
+            episode_number: showData.episode,
+            id: showRes.results[0].id
+          }, function (err, episodeRes) {
+            if (err) {
+              console.error(err);
+              deferred.reject(err);
+            }
+            else {
+              episodeRes["still_path"] = tmdbConfig.images['base_url'] + 'w300' + episodeRes["still_path"]
+              deferred.resolve({
+                showRes: showRes.results[0],
+                episodeRes: episodeRes
+              })
+            }
+          })
+        }
+      })
+    })
+    .catch(function (err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+  return deferred.promise;
+}
+
+function updateShow(doc, showData, tmdbData) {
   var deferred = q.defer();
   //Update doc
   var foundSeason = false;
   var madeChanges = false;
+
   doc.seasons.forEach(function (season) {
     if (season.number == showData.season) {
       foundSeason = true;
@@ -278,13 +323,16 @@ function updateShow(doc, showData){
       });
       if (!foundEpisode) {
         season.episodes.push({
-          number: showData.episode,
-          name: showData.episodeName,
+          name: tmdbData.episodeRes['name'],
+          number: tmdbData.episodeRes['episode_number'],
           quality: showData.quality,
           magnetLink: showData.magnetUrl,
-          dateAdded: Date()
+          dateAdded: Date(),
+          dateAired: tmdbData.episodeRes['air_date'],
+          stillUrl: tmdbData.episodeRes['still_path'],
+          synopsis: tmdbData.episodeRes.overview
         });
-        addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
+        addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl, tmdbData);
         madeChanges = true;
       } else {
         //Found the episode, but this might be a better torrent
@@ -298,19 +346,21 @@ function updateShow(doc, showData){
       }
     }
   });
-
   if (!foundSeason) {
     doc.seasons.push({
       number: showData.season,
       episodes: [{
-        number: showData.episode,
-        name: showData.episodeName,
+        name: tmdbData.episodeRes['name'],
+        number: tmdbData.episodeRes['episode_number'],
         quality: showData.quality,
         magnetLink: showData.magnetUrl,
-        dateAdded: Date()
+        dateAdded: Date(),
+        dateAired: tmdbData.episodeRes['air_date'],
+        stillUrl: tmdbData.episodeRes['still_path'],
+        synopsis: tmdbData.episodeRes.overview
       }]
     });
-    addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
+    addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl, tmdbData);
     madeChanges = true;
   }
   if (madeChanges) {
@@ -325,53 +375,47 @@ function updateShow(doc, showData){
   return deferred.promise;
 }
 
-function saveShow(showData){
+
+function saveShow(showData, tmdbData) {
   var deferred = q.defer();
 
-  tvdb.getSeries(showData.name)
-    .then(function (tvdbdata) {
-      var newShow = new TVShow.model({
-        name: showData.name,
-        imdbId: tvdbdata.IMDB_ID,
-        tvdbId: tvdbdata.id,
-        posterUrl: "http://thetvdb.com/banners/_cache/posters/" + tvdbdata.id + "-1.jpg",
-        backgroundUrl: "http://thetvdb.com/banners/fanart/original/" + tvdbdata.id + "-1.jpg",
-        network: tvdbdata.Network,
-        description: tvdbdata.Overview,
-        seasons: [{
-          number: showData.season,
-          episodes: [{
-            name: showData.episodeName,
-            number: showData.episode,
-            quality: showData.quality,
-            magnetLink: showData.magnetUrl,
-            dateAdded: Date()
-          }]
-        }]
-      });
+  var newShow = new TVShow.model({
+    name: tmdbData.showRes.name,
+    tmdbId: tmdbData.showRes.id,
+    posterUrl: tmdbData.showRes["poster_path"],
+    backgroundUrl: tmdbData.showRes["backdrop_path"],
+    seasons: [{
+      number: tmdbData.episodeRes['season_number'],
+      episodes: [{
+        name: tmdbData.episodeRes['name'],
+        number: tmdbData.episodeRes['episode_number'],
+        quality: showData.quality,
+        magnetLink: showData.magnetUrl,
+        dateAdded: Date(),
+        dateAired: tmdbData.episodeRes['air_date'],
+        stillUrl: tmdbData.episodeRes['still_path'],
+        synopsis: tmdbData.episodeRes.overview
+      }]
+    }]
+  });
 
-      newShow.save(function (err, doc) {
-        if (doc) {
-          returned = true;
-          deferred.resolve(doc);
-          addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl);
-          console.log("Added show", doc.name);
-        } else {
-          if (!err) {
-            console.log("No doc for some reason");
-            deferred.reject({message: "No doc for some reason"});
-          }
-          else {
-            deferred.reject({message: "Error adding show", data: err});
-          }
-        }
-      })
-    })
-    .catch(function (err) {
-      console.error(err, showData);
+  newShow.save(function (err, doc) {
+    if (doc) {
       returned = true;
-      deferred.reject(err);
-    })
+      deferred.resolve(doc);
+      addShowToRecents(showData, doc.posterUrl, doc.backgroundUrl, tmdbData);
+      console.log("Added show", doc.name);
+    } else {
+      if (!err) {
+        console.log("No doc for some reason");
+        deferred.reject({message: "No doc for some reason"});
+      }
+      else {
+        deferred.reject({message: "Error adding show", data: err});
+      }
+    }
+  });
+
 
   return deferred.promise;
 }
@@ -380,31 +424,50 @@ function saveShow(showData){
 function addShowToDB(showData) {
   var deferred = q.defer();
 
-  var returned = false;
-
-  tracker.getSeeders(showData.magnetUrl)
-    .then(function (result) {
-      if (result > 60) {
-        TVShow.model.findOne({name: showData.name}).exec(function (err, doc) {
+  //tracker.getSeeders(showData.magnetUrl)
+  //  .then(function (result) {
+  //    if (result > 60) {
+  getTMDBData(showData)
+    .then(function (tmdbData) {
+      TVShow.model.findOne({name: tmdbData.showRes.name})
+        .exec(function (err, doc) {
           if (doc) {
-            updateShow(doc, showData)
+            updateShow(doc, showData, tmdbData)
               .then(deferred.resolve)
               .catch(deferred.reject);
 
           } else {
-            saveShow(showData)
+            saveShow(showData, tmdbData)
               .then(deferred.resolve)
               .catch(deferred.reject);
           }
         });
-      }
-      else {
-        console.log('Not adding', showData.name, 'Not enough seeds');
-        returned = true;
-        deferred.reject({message: "Not enough seeds"});
-      }
+    }).catch(deferred.reject);
+
+  //}
+  //else {
+  //  console.log('Not adding', showData.name, 'Not enough seeds');
+  //  deferred.reject({message: "Not enough seeds"});
+  //}
+  //})
+  //.catch(deferred.reject);
+
+  return deferred.promise;
+}
+
+var tmdbConfig;
+function getTMDBConfig() {
+  var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+  var deferred = q.defer();
+
+  if (!tmdbConfig) {
+    MovieDB.configuration(function (err, res) {
+      tmdbConfig = res;
+      deferred.resolve(res);
     })
-    .catch(deferred.reject)
+  } else {
+    deferred.resolve(tmdbConfig);
+  }
 
   return deferred.promise;
 }

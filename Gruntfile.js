@@ -1,10 +1,9 @@
+var pkg = require('./package.json');
+
 module.exports = function(grunt) {
 
-  // Add the grunt-mocha-test tasks.
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-istanbul');
-  grunt.loadNpmTasks('grunt-env');
-  grunt.loadNpmTasks('grunt-mocha-istanbul')
+  // load all grunt tasks
+  require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
     // Configure a mochaTest task
@@ -49,4 +48,32 @@ module.exports = function(grunt) {
   grunt.registerTask('default', 'coverage');
   grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
 
+};
+
+
+//Using exclusion patterns slows down Grunt significantly
+//instead of creating a set of patterns like '**/*.js' and '!**/node_modules/**'
+//this method is used to create a set of inclusive patterns for all subdirectories
+//skipping node_modules, bower_components, dist, and any .dirs
+//This enables users to create any directory structure they desire.
+var createFolderGlobs = function(fileTypePatterns) {
+  fileTypePatterns = Array.isArray(fileTypePatterns) ? fileTypePatterns : [fileTypePatterns];
+  var ignore = ['node_modules','bower_components','dist','temp'];
+  var fs = require('fs');
+  return fs.readdirSync(process.cwd())
+    .map(function(file){
+      if (ignore.indexOf(file) !== -1 ||
+        file.indexOf('.') === 0 ||
+        !fs.lstatSync(file).isDirectory()) {
+        return null;
+      } else {
+        return fileTypePatterns.map(function(pattern) {
+          return file + '/**/' + pattern;
+        });
+      }
+    })
+    .filter(function(patterns){
+      return patterns;
+    })
+    .concat(fileTypePatterns);
 };
