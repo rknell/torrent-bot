@@ -264,7 +264,7 @@ function isBetter(current, newItem) {
 
 function getTMDBData(showData) {
   var deferred = q.defer();
-  try{
+  try {
     var MovieDB = require('./moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
     getTMDBConfig()
       .then(function () {
@@ -303,7 +303,7 @@ function getTMDBData(showData) {
         console.error(err);
         deferred.reject(err);
       });
-  } catch(e){
+  } catch (e) {
     deferred.reject(e);
   }
 
@@ -463,7 +463,7 @@ function addShowToDB(showData) {
 var tmdbConfig;
 function getTMDBConfig() {
   var deferred = q.defer();
-  try{
+  try {
     if (!tmdbConfig) {
       var MovieDB = require('./moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
       MovieDB.configuration(function (err, res) {
@@ -473,7 +473,7 @@ function getTMDBConfig() {
     } else {
       deferred.resolve(tmdbConfig);
     }
-  }catch(e){
+  } catch (e) {
     deferred.reject(e);
   }
   return deferred.promise;

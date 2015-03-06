@@ -44,12 +44,12 @@ function getPage(number){
             console.log("Added", item.title);
           })
           .finally(function () {
-            console.log("Finished processing", item.title);
+            //console.log("Finished processing", item.title);
             outstanding.splice(outstanding.indexOf(item.title), 1);
             cb();
           });
       }, function (err) {
-        console.log("Waiting 5 secs so process more shows");
+        //console.log("Waiting 5 secs so process more shows");
         setTimeout(deferred.resolve, 5000);
       });
 
