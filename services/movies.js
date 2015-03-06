@@ -1,6 +1,6 @@
 var Movie = require('../api/models/Movie');
 var q = require('q');
-var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+var MovieDB = require('./moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
 
 var tracker = require('./tracker');
 

@@ -265,7 +265,7 @@ function isBetter(current, newItem) {
 function getTMDBData(showData) {
   var deferred = q.defer();
   try{
-    var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+    var MovieDB = require('./moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
     getTMDBConfig()
       .then(function () {
         MovieDB.searchTv({query: showData.name}, function (err, showRes) {
@@ -465,7 +465,7 @@ function getTMDBConfig() {
   var deferred = q.defer();
   try{
     if (!tmdbConfig) {
-      var MovieDB = require('moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
+      var MovieDB = require('./moviedb')('75b5199b3ca7adaee206a1698fd99cf0');
       MovieDB.configuration(function (err, res) {
         tmdbConfig = res;
         deferred.resolve(res);
