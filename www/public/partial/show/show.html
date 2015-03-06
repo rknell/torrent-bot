@@ -16,7 +16,7 @@
 
                 <div class="episodes" ng-show="currentSeason">
 
-                    <div class="poster-button back-button" ng-click="setCurrent()">< Back</div>
+                    <div class="poster-button back-button" ng-click="setCurrent()">&lt; Back</div>
                     <div class="col-lg-4 col-sm-6" ng-repeat="episode in currentSeason.episodes">
                         <div class="poster-button episode-button" ng-click="watch(episode)">Episode {{episode.number}} <span ng-show="episode.name"> - </span> {{episode.name}} - {{episode.quality}}</div>
                     </div>
