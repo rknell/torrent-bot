@@ -304,6 +304,7 @@ function getTMDBData(showData) {
         deferred.reject(err);
       });
   } catch (e) {
+    console.error("Error getTMDBdata", e, e.stack);
     deferred.reject(e);
   }
 
@@ -436,16 +437,21 @@ function addShowToDB(showData) {
     .then(function (tmdbData) {
       TVShow.model.findOne({name: tmdbData.showRes.name})
         .exec(function (err, doc) {
-          if (doc) {
-            updateShow(doc, showData, tmdbData)
-              .then(deferred.resolve)
-              .catch(deferred.reject);
-
+          if(err){
+            deferred.reject(err);
           } else {
-            saveShow(showData, tmdbData)
-              .then(deferred.resolve)
-              .catch(deferred.reject);
+            if (doc) {
+              updateShow(doc, showData, tmdbData)
+                .then(deferred.resolve)
+                .catch(deferred.reject);
+
+            } else {
+              saveShow(showData, tmdbData)
+                .then(deferred.resolve)
+                .catch(deferred.reject);
+            }
           }
+
         });
     }).catch(deferred.reject);
 
@@ -475,6 +481,7 @@ function getTMDBConfig() {
     }
   } catch (e) {
     deferred.reject(e);
+    console.log("Error getting TMDB Config", e, e.stack);
   }
   return deferred.promise;
 }
