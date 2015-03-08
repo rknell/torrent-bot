@@ -11,7 +11,8 @@ function start(torrent) {
       .format("mp4")
       .size("340x?")
       .addOptions([
-        "-movflags frag_keyframe+faststart"
+        "-movflags frag_keyframe+faststart",
+        "-strict -2"
       ])
       // setup event handlers
       .on('end', function() {
