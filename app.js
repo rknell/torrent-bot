@@ -11,6 +11,10 @@ engine.config = {
   apiPrefix: "/api"
 };
 
+if(!process.env.DEVELOPMENT){
+  engine.config.port = 80;
+}
+
 /**
  * Setup the static views
  * ----------------------
