@@ -3,7 +3,7 @@ var clivas = require('clivas');
 var feeds = require('./feeds');
 var q = require('q');
 var tracker = require('./tracker');
-var kickassTV = require('./kickassTV');
+//var kickassTV = require('./kickassTV');
 var cleanAll = require('./cleanShows');
 var kickassMovies = require('./kickassMovies').processShows();
 
@@ -60,7 +60,7 @@ function play(uri){
 
 //Run the scanners
 feeds.showRss();
-kickassTV.processShows();
+//kickassTV.processShows();
 
 
 module.exports = {

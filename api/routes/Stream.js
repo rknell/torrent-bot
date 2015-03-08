@@ -18,11 +18,18 @@ var pump = require('pump');
 var needToAttach = false;
 
 function play(req, res){
+  console.log("Started playing", req.params.url);
   torrentStreamLib.start(req.params.url)
-    .then(function(result){
+    .then(torrentStreamLib.selectMediaFile)
+    .then(torrentStreamLib.transcode)
+    .then(function(ts){
       res.contentType('mp4');
-      result.stream.pipe(res, {end: true});
-    })
+      ts.publishStream.pipe(res, {end: true})
+    });
+    //.then(function(ts) {
+    //  res.contentType('mp4');
+    //  result.stream.pipe(res, {end: true});
+    //})
 }
 
 function chromecast(req, res) {
