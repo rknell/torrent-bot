@@ -13,6 +13,7 @@
 var torrentEngine = require('../../services/main');
 var chromecastLib = require('../../services/chromecast');
 var torrentStreamLib = require('../../services/torrentStreamLib');
+var pump = require('pump');
 
 var needToAttach = false;
 
@@ -20,7 +21,7 @@ function play(req, res){
   torrentStreamLib.start(req.params.url)
     .then(function(result){
       res.contentType('mp4');
-      result.stream.pipe(res);
+      result.stream.pipe(res, {end: true});
     })
 }
 
