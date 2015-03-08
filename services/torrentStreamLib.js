@@ -7,10 +7,7 @@ function start(torrent) {
   var ts = torrentStream(torrent);
 
   ts.on("ready", function () {
-    selectMediaFile(ts)
-      .then(function(ts){
-
-      })
+    deferred.resolve(ts)
   });
 
   return deferred.promise;
@@ -18,13 +15,12 @@ function start(torrent) {
 
 function selectMediaFile(ts){
   var deferred = q.defer();
-  var largestFile;
   ts.files.forEach(function(item){
-    if(!largestFile || item.length > largestFile.length){
-      largestFile = item;
+    if(!ts.mediaFile || item.length > ts.mediaFile.length){
+      ts.mediaFile = item;
     }
   });
-  ts.mediaFile = largestFile;
+  console.log("Playing file",ts.mediaFile.name, Math.round(ts.mediaFile.length / 1000000),"mb");
   ts.publishStream = ts.mediaFile.createReadStream();
   deferred.resolve(ts);
   return deferred.promise;
@@ -48,7 +44,7 @@ function transcode(ts){
       console.log('an error happened: ' + err.message);
     });
 
-  ts.publishStream = ts.transcodedStream.stream;
+  ts.publishStream = ts.transcodedStream.stream();
 
   deferred.resolve(ts);
 

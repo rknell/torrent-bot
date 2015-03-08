@@ -16,20 +16,22 @@ var torrentStreamLib = require('../../services/torrentStreamLib');
 var pump = require('pump');
 
 var needToAttach = false;
-
-function play(req, res){
+var ts;
+function play(req, res) {
   console.log("Started playing", req.params.url);
+
   torrentStreamLib.start(req.params.url)
     .then(torrentStreamLib.selectMediaFile)
     .then(torrentStreamLib.transcode)
-    .then(function(ts){
+    .then(function (ts) {
       res.contentType('mp4');
-      ts.publishStream.pipe(res, {end: true})
+      ts.publishStream.pipe(res, {end: true});
+      console.log("Should have started streaming");
+    })
+    .catch(function (err) {
+      console.error("Error streaming file", err);
+      res.status(500).json(err);
     });
-    //.then(function(ts) {
-    //  res.contentType('mp4');
-    //  result.stream.pipe(res, {end: true});
-    //})
 }
 
 function chromecast(req, res) {
@@ -37,10 +39,10 @@ function chromecast(req, res) {
   var url = req.body.url;
 
   chromecastLib.play(url, url)
-    .then(function(result){
+    .then(function (result) {
       res.json({success: true});
     })
-    .catch(function(err){
+    .catch(function (err) {
       res.status(500).json(err);
     });
 }
