@@ -430,38 +430,37 @@ function saveShow(showData, tmdbData) {
 function addShowToDB(showData) {
   var deferred = q.defer();
 
-  //tracker.getSeeders(showData.magnetUrl)
-  //  .then(function (result) {
-  //    if (result > 60) {
-  getTMDBData(showData)
-    .then(function (tmdbData) {
-      TVShow.model.findOne({name: tmdbData.showRes.name})
-        .exec(function (err, doc) {
-          if(err){
-            deferred.reject(err);
-          } else {
-            if (doc) {
-              updateShow(doc, showData, tmdbData)
-                .then(deferred.resolve)
-                .catch(deferred.reject);
+  tracker.getSeeders(showData.magnetUrl)
+    .then(function (result) {
+      if (result > 60) {
+        getTMDBData(showData)
+          .then(function (tmdbData) {
+            TVShow.model.findOne({name: tmdbData.showRes.name})
+              .exec(function (err, doc) {
+                if (err) {
+                  deferred.reject(err);
+                } else {
+                  if (doc) {
+                    updateShow(doc, showData, tmdbData)
+                      .then(deferred.resolve)
+                      .catch(deferred.reject);
 
-            } else {
-              saveShow(showData, tmdbData)
-                .then(deferred.resolve)
-                .catch(deferred.reject);
-            }
-          }
-
-        });
-    }).catch(deferred.reject);
-
-  //}
-  //else {
-  //  console.log('Not adding', showData.name, 'Not enough seeds');
-  //  deferred.reject({message: "Not enough seeds"});
-  //}
-  //})
-  //.catch(deferred.reject);
+                  } else {
+                    saveShow(showData, tmdbData)
+                      .then(deferred.resolve)
+                      .catch(deferred.reject);
+                  }
+                }
+              });
+          }).catch(deferred.reject);
+      } else {
+        console.log('Not adding', showData.name, 'Not enough seeds');
+        deferred.reject({message: "Not enough seeds"});
+      }
+    })
+    .catch(function(err){
+      deferred.reject(err);
+    });
 
   return deferred.promise;
 }

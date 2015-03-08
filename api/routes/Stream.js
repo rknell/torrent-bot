@@ -22,9 +22,10 @@ function play(req, res) {
 
   torrentStreamLib.start(req.params.url)
     .then(torrentStreamLib.selectMediaFile)
-    .then(torrentStreamLib.transcode)
+    //.then(torrentStreamLib.transcode)
     .then(function (ts) {
       res.contentType('mp4');
+      res.setHeader("Content-Length", ts.mediaFile.length);
       ts.publishStream.pipe(res, {end: true});
       console.log("Should have started streaming");
     })

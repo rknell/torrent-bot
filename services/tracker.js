@@ -65,7 +65,7 @@ function getSeeders(magnetLink) {
       //console.error("Could not get ANY seed results", magnetLink, returnedClientResults, maxSeeders);
 
       //Dont remove it just yet!
-      maxSeeders = 100;
+      //maxSeeders = 100;
       unsuccessfulRequests ++;
       deferred.reject({message: "Could not connect to any tracker"});
     } else {

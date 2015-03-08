@@ -101,6 +101,8 @@ function processShows() {
   })
 }
 
+processShows();
+
 module.exports = {
   processShows: processShows
 }
