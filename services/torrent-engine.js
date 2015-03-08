@@ -5,6 +5,7 @@ var rangeParser = require('range-parser');
 var urlSvc = require('url');
 var mime = require('mime');
 var pump = require('pump');
+var ffmpeg = require('fluent-ffmpeg');
 
 var parseBlocklist = function (filename) {
   // TODO: support gzipped files
@@ -120,22 +121,73 @@ var createServer = function (engine, opts) {
     var file = engine.files[i];
     var range = request.headers.range;
     range = range && rangeParser(file.length, range)[0];
-    response.setHeader('Accept-Ranges', 'bytes');
-    response.setHeader('Content-Type', getType(file.name));
+    //response.setHeader('Accept-Ranges', 'bytes');
+    //response.setHeader('Content-Type', getType(file.name));
 
-    if (!range) {
-      response.setHeader('Content-Length', file.length);
-      if (request.method === 'HEAD') return response.end();
-      pump(file.createReadStream(), response);
-      return;
-    }
+    //if (!range) {
+    //  response.setHeader('Content-Length', file.length);
+    //  if (request.method === 'HEAD') return response.end();
+    //} else {
+    //  response.statusCode = 206;
+    //  response.setHeader('Content-Length', range.end - range.start + 1);
+    //  response.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + file.length);
+    //  if (request.method === 'HEAD') return response.end();
+    //}
+    //var stream = fs.createReadStream("/private/tmp/torrent-stream/6c05d501cc08586b4ca021e880471df3af12cb87/The.Big.Bang.Theory.S08E17.HDTV.x264-LOL\[ettv\]/the.big.bang.theory.817.hdtv-lol.mp4");
+    //var proc = ffmpeg(stream)
+    //  .format('mp4')
+    //  //.size('320x?')
+    //  //.videoBitrate('512k')
+    //  .videoCodec('libx264')
+    //  //.fps(24)
+    //  //.audioBitrate('96k')
+    //  //.audioCodec('libmp3lame')
+    //  //.audioFrequency(22050)
+    //  //.audioChannels(1)
+    //  .on("end", function(){console.log("Transcoding ended")})
+    //  .on("error", function(err){console.error("Transcoding error", err)})
+    //  .pipe(response, {end: true});
 
-    response.statusCode = 206;
-    response.setHeader('Content-Length', range.end - range.start + 1);
-    response.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + file.length);
-
-    if (request.method === 'HEAD') return response.end();
-    pump(file.createReadStream(range), response);
+    //var transcoder = new Transcoder(file.createReadStream(range))
+    //  .maxSize(320, 240)
+    //  .videoCodec('h264')
+    //  .videoBitrate(200 * 1000)
+    //  .fps(25)
+    //  .audioCodec('mp3')
+    //  .sampleRate(44100)
+    //  .channels(1)
+    //  .audioBitrate(64 * 1000)
+    //  .format('mp4')
+    //  .custom('strict', 'experimental')
+    //  .on('finish', function () {
+    //    console.log("Finished transcoding");
+    //  })
+    //  .on('progress', function(progress){
+    //    //console.log("Transcode progress", progress);
+    //  })
+    //  .on('metadata', function(metadata){
+    //    setTimeout(function(){
+    //      console.log("Beginning stream");
+    //      response.setHeader('Content-Length', range.end - range.start + 1);
+    //      response.setHeader('Content-Range', 'bytes ' + range.start + '-' + range.end + '/' + file.length);
+    //      fs.createReadStream("./transcodedVideo.mp4").pipe(response);
+    //    }, 15000);
+    //  })
+    //  .on('error', function(err){
+    //    console.error("Transcode error", err);
+    //  })
+    //  .stream().pipe(fs.createWriteStream("./transcodedVideo.mp4"));
+    //
+    //
+    //  //var args = transcoder._compileArguments();
+    //  //args = [ '-i', '-' ].concat(args);
+    //  //args.push('pipe:1');
+    //  //
+    //  //transcoder.stream().pipe(response);
+    //
+    ////pump(file.createReadStream(range), response, function(err){
+    ////  console.error("Stream error", err);
+    ////});
   });
 
   server.on('connection', function (socket) {
@@ -164,7 +216,7 @@ module.exports = function (torrent, opts) {
     engine.swarm.resume();
   });
 
-  engine.server = createServer(engine, opts);
+  //engine.server = createServer(engine, opts);
 
   // Listen when torrent-stream is ready, by default a random port.
   engine.on('ready', function () {

@@ -32,11 +32,8 @@ function getPage(number) {
 
       var outstanding = [];
 
-      async.eachLimit(items, 60, function (item, cb) {
+      async.eachLimit(items, 2, function (item, cb) {
         outstanding.push(item.title);
-        if (item.title === "The Last Man On Earth S01E01 HDTV x264-KILLERS[ettv]") {
-          var a = 0;
-        }
 
         var timeoutId = setTimeout(function () {
           console.log("Timing out", item.title);
@@ -49,7 +46,7 @@ function getPage(number) {
             console.log("Added", item.title);
           })
           .finally(function () {
-            //console.log("Finished processing", item.title);
+            console.log("Finished processing", item.title);
             outstanding.splice(outstanding.indexOf(item.title), 1);
             clearTimeout(timeoutId);
             cb();
@@ -71,6 +68,7 @@ function getPage(number) {
     } catch (e) {
       console.error("Could not process page", number, "scrape issue.", e, e.stack);
       console.log(body);
+      setTimeout(deferred.resolve, 1000 * 15);
       deferred.resolve();
     }
   });

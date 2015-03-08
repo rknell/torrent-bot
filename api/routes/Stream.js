@@ -11,16 +11,16 @@
  search
  */
 var torrentEngine = require('../../services/main');
-//var chromecastPlayer = require('chromecast-player')();
 var chromecastLib = require('../../services/chromecast');
+var torrentStreamLib = require('../../services/torrentStreamLib');
 
 var needToAttach = false;
 
-
 function play(req, res){
-  torrentEngine.play(req.body.url)
+  torrentStreamLib.start(req.params.url)
     .then(function(result){
-      res.json(result);
+      res.contentType('mp4');
+      result.stream.pipe(res);
     })
 }
 
@@ -35,72 +35,13 @@ function chromecast(req, res) {
     .catch(function(err){
       res.status(500).json(err);
     });
-
-
-
-  //torrentEngine.play(url)
-  //  .then(function (result) {
-  //    console.log('Trying to chromecast', result);
-
-      //try{
-      //  chromecastPlayer.launch('http://www.w3schools.com/html/mov_bbb.mp4', function(err, p) {
-      //    p.once('playing', function() {
-      //      console.log('playback has started.');
-      //      res.json({success: true});
-      //    });
-      //  });
-      //} catch(e){
-      //  res.status(500).json(e);
-      //  console.error(e);
-      //}
-
-  //if(!needToAttach){
-  //  chromecastPlayer.launch(url, function(err, p) {
-  //    needToAttach = true;
-  //    if(err){
-  //      console.error(err, url, title);
-  //      res.status(500).json(err.message);
-  //    }
-  //    p.once('playing', function() {
-  //      console.log('playback has started.');
-  //      res.json({success: true});
-  //    });
-  //  });
-  //} else {
-  //  chromecastPlayer.attach(url, function(err, p) {
-  //    if(err){
-  //      console.error(err, url, title);
-  //      res.status(500).json(err.message);
-  //    }
-  //    p.once('playing', function() {
-  //      console.log('playback has started.');
-  //      res.json({success: true});
-  //    });
-  //  });
-  //}
-
-
-
-
-      //var player = chromecastPlayer({
-      //  path: "http://www.w3schools.com/html/mov_bbb.mp4",
-      //  type: opts.type || 'video/mp4',
-      //  metadata: {title: title || 'No title specified'}
-      //}, function (err, p) {
-      //  console.log("returned", err, p)
-      //  p.once('playing', function () {
-      //    console.log('playback has started.');
-      //    res.json({success: true});
-      //  })
-      //});
-    //})
 }
 
 module.exports = {
   routes: [
     {
-      path: "play",
-      method: "post",
+      path: "play/:url/media.mp4",
+      method: "get",
       fn: play,
       middleware: []
     },

@@ -6,7 +6,21 @@ var numeral = require('numeral');
 
 module.exports = {
   load: function (uri, callback) {
-    var engine = torrentEngine(uri);
+    var engine = torrentEngine(uri, {
+      connections: 50,
+      uploads: 1,
+      trackers: [
+        "udp://open.demonii.com:1337/announce",
+        "http://tracker.best-torrents.net:6969/announce",
+        "http://explodie.org:6969/announce",
+        "http://bttracker.crunchbanglinux.org:6969/announce",
+        "http://mgtracker.org:2710/announce",
+        "http://tracker.dler.org:6969/announce",
+        "http://tracker.tfile.me/announce",
+        "http://bt.careland.com.cn:6969/announce",
+        "http://tracker1.wasabii.com.tw:6969/announce"
+      ]
+    });
     var started = Date.now();
     var wires = engine.swarm.wires;
     var swarm = engine.swarm;
