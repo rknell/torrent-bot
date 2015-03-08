@@ -4,7 +4,15 @@ var ffmpeg = require('fluent-ffmpeg');
 
 function start(torrent) {
   var deferred = q.defer();
-  var ts = torrentStream(torrent);
+  var ts = torrentStream(torrent, {
+    connections: 200,
+    uploads: 30,
+    trackers: [
+      "udp://open.demonii.com:1337",
+      "udp://tracker.coppersurfer.tk:6969",
+      "udp://tracker.leechers-paradise.org:6969"
+    ]
+  });
 
   ts.on("ready", function () {
     deferred.resolve(ts)
