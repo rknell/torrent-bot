@@ -46,7 +46,6 @@ function getPage(number) {
             console.log("Added", item.title);
           })
           .finally(function () {
-            console.log("Finished processing", item.title);
             outstanding.splice(outstanding.indexOf(item.title), 1);
             clearTimeout(timeoutId);
             cb();
@@ -58,7 +57,7 @@ function getPage(number) {
       function outstandingFn() {
         setTimeout(function () {
           if (outstanding.length) {
-            console.log("Outstanding", JSON.stringify(outstanding, null, 2));
+            //console.log("Outstanding", JSON.stringify(outstanding, null, 2));
             outstandingFn();
           }
         }, 1000 * 30);
@@ -66,7 +65,7 @@ function getPage(number) {
 
       outstandingFn();
     } catch (e) {
-      console.error("Could not process page", number, "scrape issue.", e, e.stack);
+      //console.error("Could not process page", number, "scrape issue.", e, e.stack);
       console.log(body);
       setTimeout(deferred.resolve, 1000 * 15);
       deferred.resolve();
