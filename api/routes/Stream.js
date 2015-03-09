@@ -20,12 +20,13 @@ var ts;
 function play(req, res) {
   console.log("Started playing", req.params.url);
 
-  torrentStreamLib.start(req.params.url)
+  torrentStreamLib.start(req.params.url, req.headers.range)
     .then(torrentStreamLib.selectMediaFile)
     //.then(torrentStreamLib.transcode)
     .then(function (ts) {
       res.contentType('mp4');
       res.setHeader("Content-Length", ts.mediaFile.length);
+      res.setHeader('Content-Range', 'bytes ' + ts.range.start + '-' + ts.range.end + '/' + ts.mediaFile.length);
       ts.publishStream.pipe(res, {end: true});
       console.log("Should have started streaming");
     })

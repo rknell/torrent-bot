@@ -1,18 +1,24 @@
 var torrentStream = require('torrent-stream');
 var q = require('q');
 var ffmpeg = require('fluent-ffmpeg');
+var rangeParser = require('range-parser');
 
-function start(torrent) {
+function start(torrent, range) {
   var deferred = q.defer();
+
+
+
   var ts = torrentStream(torrent, {
     connections: 200,
-    uploads: 30,
+    uploads: 0,
     trackers: [
       "udp://open.demonii.com:1337",
       "udp://tracker.coppersurfer.tk:6969",
       "udp://tracker.leechers-paradise.org:6969"
     ]
   });
+
+  ts.range = range;
 
   ts.on("ready", function () {
     deferred.resolve(ts)
@@ -29,14 +35,15 @@ function selectMediaFile(ts){
     }
   });
   console.log("Playing file",ts.mediaFile.name, Math.round(ts.mediaFile.length / 1000000),"mb");
-  ts.publishStream = ts.mediaFile.createReadStream();
+  ts.range = ts.range && rangeParser(ts.mediaFile.length, ts.range)[0];
+  ts.publishStream = ts.mediaFile.createReadStream(ts.range);
   deferred.resolve(ts);
   return deferred.promise;
 }
 
 function transcode(ts){
   var deferred = q.defer();
-  ts.transcodedStream = ffmpeg(ts.mediaFile.createReadStream())
+  ts.transcodedStream = ffmpeg(ts.publishStream)
     .format("mp4")
     .size("340x?")
     .addOptions([
