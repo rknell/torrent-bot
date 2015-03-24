@@ -215,6 +215,7 @@ function cleanName(name) {
   name = name.replace(/\./gi, " ");
   name = name.replace(/\&/gi, " ");
   name = name.replace(/\'|\!|\(|\)|US/gi, "");
+  name = name.replace(/\d{4}/, "");
   name = name.trim();
   name = name.toUpperCase();
   return name;

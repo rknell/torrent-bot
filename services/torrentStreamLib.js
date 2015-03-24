@@ -45,7 +45,7 @@ function transcode(ts){
   var deferred = q.defer();
   ts.transcodedStream = ffmpeg(ts.publishStream)
     .format("mp4")
-    .size("340x?")
+    .size("?x480")
     .addOptions([
       "-movflags frag_keyframe+faststart",
       "-strict -2"
