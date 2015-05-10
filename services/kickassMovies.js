@@ -1,6 +1,6 @@
 var request = require('request');
 var cheerio = require('cheerio');
-var feeds = require('./feeds');
+var feeds = require('./TVShows');
 var async = require('async');
 var q = require('q');
 var movies = require('./movies');

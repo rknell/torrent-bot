@@ -64,7 +64,8 @@
     "thetvdb-api": "^0.1.0",
     "torrent-stream": "^0.15.1",
     "walk": "^2.3.4",
-    "xml2json": "^0.5.1"
+    "xml2json": "^0.5.1",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "chai": "^1.10.0",

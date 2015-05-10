@@ -1,13 +1,14 @@
 <toolbar></toolbar>
 <tv-show-toolbar></tv-show-toolbar>
-<div ng-controller="TvshowsrecentCtrl" class="padding-submenu">
-
-    <div class="poster col-lg-2 col-md-3 col-sm-5" ng-repeat="show in shows" ng-click="watch(show)" ng-show="show.quality == 'SD'">
-        <img ng-src="{{show.posterUrl}}" class="img-responsive" placeholder data-tvdbId="{{show.tvdbId}}">
-        <h3>{{show.name}}</h3>
-        <h5 style="margin-bottom:0px;">S{{show.season}}E{{show.episode}}</h5>
-        <h5>Air Date {{show.dateAired | date:'dd/M/yy'}}</h5>
-        <img src="img/star.png" class="watched-star" ng-show="!show.watched">
-    </div>
-
-</div>
+<md-content layout-padding ng-controller="TvshowsrecentCtrl">
+    <!--<div class="poster col-lg-2 col-md-3 col-sm-5" >-->
+        <div class="poster" style="background-image:url({{show.posterUrl}});" ng-repeat="show in shows" ng-click="watch(show)" ng-show="show.quality == 'SD'">
+            <div class="showInfo">
+                <h3>{{show.name}}</h3>
+                <h5 style="margin-bottom:0px;">S{{show.season}}E{{show.episode}}</h5>
+                <h5>Air Date {{show.dateAired | date:'dd/M/yy'}}</h5>
+            </div>
+            <img src="img/star.png" class="watched-star" ng-show="!show.watched">
+        </div>
+    <!--</div>-->
+</md-content>

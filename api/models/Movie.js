@@ -20,13 +20,12 @@ var schema = new mongoose.Schema({
   background: String,
   dateAdded: Date,
   description: String,
-  magnets: [
-    {
+  magnets: [{
       quality: String,
       magnetLink: String,
-      dateAdded: Date
-    }
-  ],
+      dateAdded: Date,
+      seeds: Number
+  }],
   recommendations: [{
     name: String,
     type: String, //movie or tvshow

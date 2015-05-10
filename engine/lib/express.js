@@ -77,13 +77,18 @@ function listen(port, dontListen, production) {
         message: err.message,
         stack: err.stack
       }
-      res.status(err.status).json(errOutput)
+      console.error(errOutput)
+      res.status(500).json(errOutput)
     } else {
-      res.status(err.status);
+      res.status(500);
       res.render('error', {
         message: err.message,
         error: err
       });
+      console.error({
+        message: err.message,
+        stack: err.stack
+      })
     }
   });
 

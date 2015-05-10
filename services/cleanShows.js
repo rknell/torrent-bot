@@ -48,6 +48,6 @@ module.exports = {
   cleanAll: cleanAll
 };
 //Run it twice initially to remove all dead seasons and then dead shows
-cleanAll().then(cleanAll);
+//cleanAll().then(cleanAll);
 
-setInterval(cleanAll, 1000 * 30);
+//setInterval(cleanAll, 1000 * 30);

@@ -20,7 +20,12 @@ var schema = new mongoose.Schema({
   dateAired: Date,
   dateWatched: Date,
   quality: String,
-  magnetLink: String,
+  magnets: [{
+    title: String,
+    seeds: Number,
+    url: String,
+    size: String
+  }],
   seeds: String,
   tvdbId: String
 });

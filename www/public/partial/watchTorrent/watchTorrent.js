@@ -5,6 +5,7 @@ angular.module('www').controller('WatchtorrentCtrl',function($scope, $stateParam
     if($stateParams.url && $stateParams.url !== "continue"){
         nowPlaying.isPlaying = false;
         //Load up the gear
+        console.log("Posting to /api/stream/play", $stateParams.url);
         $http.post('/api/stream/play', {url: $stateParams.url})
             .success(function(result){
                 console.log("Stream result", result);

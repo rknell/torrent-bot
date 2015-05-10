@@ -32,7 +32,12 @@ var schema = new mongoose.Schema({
       number: String,
       name: String,
       quality: String,
-      magnetLink: String,
+      magnets: [{
+        title: String,
+        url: String,
+        seeds: Number,
+        size: String
+      }],
       watched: {type: Boolean, default: false},
       dateAdded: Date,
       dateWatched: Date,

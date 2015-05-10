@@ -3,6 +3,7 @@ angular.module('www').factory('nowPlaying', function ($state, $http) {
     var nowPlaying = {
         isPlaying: false,
         startWatching: function (episode, season, name, magnetLink) {
+            console.log("About to play", episode, season, name, magnetLink);
             $state.go('watchTorrent', {url: magnetLink});
             $http.post("/api/tvshow/watched", {
                 name: name,

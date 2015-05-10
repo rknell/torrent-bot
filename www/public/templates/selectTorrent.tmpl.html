@@ -1,0 +1,16 @@
+<md-dialog aria-label="Mango (Fruit)">
+    <form>
+        <md-dialog-content class="sticky-container">
+            <md-subheader class="md-sticky-no-effect">Select Torrent</md-subheader>
+            <p ng-repeat="magnet in show.magnets">
+                <md-button  ng-click="watch(magnet)">
+                    {{magnet.title}} - {{magnet.size}} <span class="seeds">{{magnet.seeds}}</span>
+                </md-button>
+            </p>
+
+        </md-dialog-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="cancel()">Cancel</md-button>
+        </div>
+    </form>
+</md-dialog>

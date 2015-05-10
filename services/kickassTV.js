@@ -1,6 +1,6 @@
 var request = require('request');
 var cheerio = require('cheerio');
-var feeds = require('./feeds');
+var feeds = require('./TVShows');
 var async = require('async');
 var q = require('q');
 q.longStackSupport = true;
@@ -23,6 +23,7 @@ function getPage(number) {
       rows.each(function (index, element) {
         var output = {
           title: $(this).find('.cellMainLink').text(),
+          size: $(this).find('.nobr.center').text(),
           magnetLink: $(this).find('.imagnet').attr('href')
         };
         if (output.title && output.title.length < 500 && output.title.length > 10) {
@@ -44,7 +45,7 @@ function getPage(number) {
           cb();
         }, 1000 * 15);
 
-        feeds.addSingleShow(item.title, item.magnetLink)
+        feeds.addSingleShow(item.title, item.magnetLink, item.size)
           .then(function () {
             console.log("Added", item.title);
           })

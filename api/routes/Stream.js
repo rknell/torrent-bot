@@ -10,7 +10,8 @@
  findById,
  search
  */
-var torrentEngine = require('../../services/main');
+//var torrentEngine = require('../../services/main');
+var torrentEngine = require('../../services/torrent-controller2');
 //var chromecastPlayer = require('chromecast-player')();
 var chromecastLib = require('../../services/chromecast');
 
@@ -18,10 +19,13 @@ var needToAttach = false;
 
 
 function play(req, res){
-  torrentEngine.play(req.body.url)
-    .then(function(result){
-      res.json(result);
-    })
+  torrentEngine(req.body.url, function(status, update){
+    res.json({url: status.href});
+  })
+  //torrentEngine.play(req.body.url)
+  //  .then(function(result){
+  //    res.json(result);
+  //  })
 }
 
 function chromecast(req, res) {
